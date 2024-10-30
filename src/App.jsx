@@ -13,10 +13,11 @@ const RootLayout = () => {
   );
 };
 
+// 라우터 설정: 경로별로 각 페이지 연결
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <RootLayout />, // RootLayout이 최상위 요소
+    element: <RootLayout />, // 최상위 요소로 RootLayout 지정
     children: [
       {
         path: '/',
@@ -24,12 +25,13 @@ const router = createBrowserRouter([
       },
       {
         path: '/login',
-        element: <Login /> // '/login' 경로
+        element: <Login />
       },
     ],
   },
 ]);
 
+// RouterProvider를 사용하여 앱에 라우터 적용
 function App() {
   return (
     <RouterProvider router={router} />
