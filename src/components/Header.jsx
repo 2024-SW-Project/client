@@ -1,18 +1,21 @@
 import React from 'react';
 import styled from "styled-components";
 import { FaBars } from "react-icons/fa6";
+import { useSetRecoilState } from 'recoil';
+import { sidebarState } from '../atoms/atom';
+import { Link } from 'react-router-dom';
 
 const Container = styled.div`
     height: 50px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: fixed; /* 상단에 고정 */
+    position: fixed;
     top: 0;
     width: 100%;
     background-color: #FFFFFF;
     padding: 0 1rem;
-    z-index: 1000; /* 다른 요소들보다 위에 표시 */
+    z-index: 1000;
 `;
 
 // 왼쪽 섹션에 로고와 메뉴텍스트를 정렬
@@ -62,16 +65,20 @@ const MenuButton = styled.button`
 `;
 
 const Header = () => {
+    const setSidebar = useSetRecoilState(sidebarState);
+
     return (
         <Container>
-            {/* 왼쪽 섹션: 로고 이미지와 메뉴 텍스트 */}
+            {/* 로고 이미지와 메뉴 텍스트 */}
             <LeftSection>
-                <LogoImg src="/logo1.png" alt="logo" />
+                <Link to="/subway/search">
+                    <LogoImg src="/logo1.png" alt="logo" />
+                </Link>
                 <Divider />
                 <MenuText>경로 찾기</MenuText>
             </LeftSection>
             {/* 오른쪽 메뉴 버튼 */}
-            <MenuButton>
+            <MenuButton onClick={() => setSidebar(true)}>
                 <FaBars />
             </MenuButton>
         </Container>
