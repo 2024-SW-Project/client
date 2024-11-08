@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Map from '../components/SubwaySearchComp/Map';
 import InputStation from '../components/SubwaySearchComp/InputStation';
 import { FaArrowRightArrowLeft } from "react-icons/fa6";
+import { SwitchToggle } from '../components/SubwaySearchComp/SwitchToggle';
 
 const Container = styled.div`
     height: 100vh;
@@ -41,6 +42,15 @@ const MapContainer = styled.div`
     justify-content: center;
     box-sizing: border-box;
     overflow: hidden;
+    position: relative;
+`;
+
+// Toggle Switch를 상단 좌측에 위치시키는 컨테이너
+const ToggleWrapperContainer = styled.div`
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
 `;
 
 const SubwaySearchPage = () => {
@@ -69,6 +79,10 @@ const SubwaySearchPage = () => {
             </InputContainer>
             {/* 지도 컴포넌트 */}
             <MapContainer>
+                {/* Toggle Switch를 Map의 상단 좌측에 배치 */}
+                <ToggleWrapperContainer>
+                    <SwitchToggle />
+                </ToggleWrapperContainer>
                 <Map style={{ width: '100%', height: '100%' }} />
             </MapContainer>
         </Container>

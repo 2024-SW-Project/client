@@ -1,14 +1,24 @@
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import './App.css';
 import SubwaySearchPage from './pages/SubwaySearchPage';
-import Login from './pages/Login'
+import LoginPage from './pages/LoginPage'
 import Header from './components/Header'
+import SideBar from './components/SideBar';
+import { RecoilRoot } from 'recoil';
+import React from 'react'
+import { useRecoilValue } from 'recoil'; // useRecoilValue를 import
+import { sidebarState } from './atoms/atom'; // sidebarState atom을 import
+import SubwayLivePage from './pages/SubwayLivePage';
+import MyPage from './pages/MyPage';
 
 const RootLayout = () => {
+  const isSidebarOpen = useRecoilValue(sidebarState);
+
   return (
     <>
       <Header /> {/* 고정된 Header */}
-      <Outlet />  {/* 라우팅된 페이지가 렌더링될 위치 */}
+      {isSidebarOpen && <SideBar />} {/* 사이드바를 상태에 따라 표시 */}
+      <Outlet /> {/* 라우팅된 페이지가 렌더링될 위치 */}
     </>
   );
 };
@@ -20,12 +30,20 @@ const router = createBrowserRouter([
     element: <RootLayout />, // 최상위 요소로 RootLayout 지정
     children: [
       {
-        path: '/',
+        path: '/subway/search',
         element: <SubwaySearchPage />
       },
       {
-        path: '/login',
-        element: <Login />
+        path: '/auth/login',
+        element: <LoginPage />
+      },
+      {
+        path: '/subway/live',
+        element: <SubwayLivePage />
+      },
+      {
+        path: '/mypage',
+        element: <MyPage />
       },
     ],
   },
@@ -34,7 +52,9 @@ const router = createBrowserRouter([
 // RouterProvider를 사용하여 앱에 라우터 적용
 function App() {
   return (
-    <RouterProvider router={router} />
+    <RecoilRoot>
+      <RouterProvider router={router} />
+    </RecoilRoot>
   );
 }
 
