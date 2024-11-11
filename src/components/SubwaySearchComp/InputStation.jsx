@@ -41,7 +41,9 @@ const Input = styled.input`
 const InputStation = ({ placeholder, value, onChange }) => {
     return (
         <Container>
+            {/* placeholder에 따른 아이콘 설정 */}
             {placeholder === '출발역' ? <StartIcon /> : <ArrivedIcon />}
+            {/* 인풋창 */}
             <Input
                 placeholder={placeholder}
                 value={value}
