@@ -1,15 +1,18 @@
+import React from 'react';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { RecoilRoot, useRecoilValue } from 'recoil';
+
 import './App.css';
-import SubwaySearchPage from './pages/SubwaySearchPage';
-import LoginPage from './pages/LoginPage'
-import Header from './components/Header'
+
+import Header from './components/Header';
 import SideBar from './components/SideBar';
-import { RecoilRoot } from 'recoil';
-import React from 'react'
-import { useRecoilValue } from 'recoil'; // useRecoilValue를 import
-import { sidebarState } from './atoms/atom'; // sidebarState atom을 import
+import SubwaySearchPage from './pages/SubwaySearchPage';
+import LoginPage from './pages/LoginPage';
 import SubwayLivePage from './pages/SubwayLivePage';
 import MyPage from './pages/MyPage';
+import SubwayRoutePage from './pages/SubwayRoutePage';
+
+import { sidebarState } from './atoms/atom';
 
 const RootLayout = () => {
   const isSidebarOpen = useRecoilValue(sidebarState);
@@ -44,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: '/mypage',
         element: <MyPage />
+      },
+      {
+        path: '/subway/route',
+        element: <SubwayRoutePage />
       },
     ],
   },
