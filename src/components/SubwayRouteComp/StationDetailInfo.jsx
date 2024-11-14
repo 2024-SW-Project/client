@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaAnglesDown } from "react-icons/fa6";
 
@@ -23,7 +23,7 @@ const LineConnectorContainer = styled.div`
 const LineConnector = styled.div`
     width           : 4px;
     height          : calc(100% - 24px);
-    background-color: ${props => props.lineColor || '#ccc'};
+    background-color: ${props => props.$lineColor || '#ccc'};
     position        : absolute;
     top             : 0;
     left            : 50%;
@@ -31,7 +31,7 @@ const LineConnector = styled.div`
 `;
 
 const Circle = styled.div`
-    background-color: ${props => props.lineColor || '#ccc'};
+    background-color: ${props => props.$lineColor || '#ccc'};
     color           : white;
     width           : 24px;
     height          : 24px;
@@ -39,7 +39,7 @@ const Circle = styled.div`
     display         : flex;
     align-items     : center;
     justify-content : center;
-    font-size       : ${props => (props.textLength > 1 ? (props.textLength > 2 ? '0.4rem' : '0.6rem'): '0.8rem')};
+    font-size       : ${props => (props.textLength > 1 ? (props.textLength > 2 ? '0.4rem' : '0.6rem') : '0.8rem')};
     font-weight     : bold;
     z-index         : 1;
 `;
@@ -79,20 +79,27 @@ const Direction = styled.div`
 const DoorInfo = styled.div`
     font-size : 12px;
     color     : #888;
-    margin-top: 2px;
 `;
 
 const StationsPathInfo = styled.div`
     font-size  : 14px;
     color      : #666;
     display    : flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     margin     : 1rem 0;
 `;
 
+const StationsToggle = styled.span`
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+`;
+
 const StationsIcon = styled(FaAnglesDown)`
-    font-size   : 18px;
-    margin-right: 5px;
+    font-size   : 16px;
+    margin-right: 4px;
+    vertical-align: middle;
 `;
 
 const StationDetailInfo = ({
@@ -101,37 +108,47 @@ const StationDetailInfo = ({
     startLineNumber,
     startLineColor,
     startDirection,
-    startDoorInfo,
-    travelInfo,
+    stationsPathList,
+    stationsPathTime,
     endTime,
     endStation,
     endDoorInfo
 }) => {
+
+    const [isToggleChecked, setIsToggelChecked] = useState(false);
+
     return (
         <Container>
             <LineConnectorContainer>
-                <LineConnector lineColor = {startLineColor} />
-                <Circle        lineColor = {startLineColor} textLength = {startLineNumber.length}>
+                <LineConnector $lineColor={startLineColor} />
+                <Circle $lineColor={startLineColor} textLength={startLineNumber.length}>
                     {startLineNumber}
                 </Circle>
-                <EndCircle lineColor = {startLineColor} />
+                <EndCircle $lineColor={startLineColor} />
             </LineConnectorContainer>
 
-            <div style = {{ flex: 1 }}>
+            <div style={{ flex: 1 }}>
                 {/* 출발역 정보 */}
                 <StationContainer>
                     <Time>{startTime}</Time>
                     <StationDetails>
                         <StationName>{startStation}</StationName>
                         <Direction>{startDirection}</Direction>
-                        <DoorInfo>{startDoorInfo}</DoorInfo>
                     </StationDetails>
                 </StationContainer>
 
                 {/* 이동 정보 */}
                 <StationsPathInfo>
-                    <StationsIcon/>
-                    {travelInfo}
+                    <StationsToggle onClick={() => setIsToggelChecked(!isToggleChecked)}>
+                        <StationsIcon /> {stationsPathList.length + 1}개 역 ({stationsPathTime}분)
+                    </StationsToggle>
+                    {isToggleChecked &&
+                        <div style={{ marginTop: '0.5rem' }}>
+                            {stationsPathList.map((station, index) => (
+                                <div key={index}>{station}</div>
+                            ))}
+                        </div>
+                    }
                 </StationsPathInfo>
 
                 {/* 도착역 정보 */}
