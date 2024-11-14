@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaAnglesDown } from "react-icons/fa6";
+import { FaAnglesUp } from "react-icons/fa6";
 
 const Container = styled.div`
     display         : flex;
@@ -96,8 +97,14 @@ const StationsToggle = styled.span`
     cursor: pointer;
 `;
 
-const StationsIcon = styled(FaAnglesDown)`
-    font-size   : 16px;
+const StationsDownIcon = styled(FaAnglesDown)`
+    font-size   : 12px;
+    margin-right: 4px;
+    vertical-align: middle;
+`;
+
+const StationsUpIcon = styled(FaAnglesUp)`
+    font-size   : 12px;
     margin-right: 4px;
     vertical-align: middle;
 `;
@@ -139,17 +146,23 @@ const StationDetailInfo = ({
 
                 {/* 이동 정보 */}
                 <StationsPathInfo>
-                    <StationsToggle onClick={() => setIsToggelChecked(!isToggleChecked)}>
-                        <StationsIcon /> {stationsPathList.length + 1}개 역 ({stationsPathTime}분)
-                    </StationsToggle>
-                    {isToggleChecked &&
-                        <div style={{ marginTop: '0.5rem' }}>
-                            {stationsPathList.map((station, index) => (
-                                <div key={index}>{station}</div>
-                            ))}
-                        </div>
-                    }
+                    {stationsPathList.length > 0 ?
+                        <>
+                            <StationsToggle onClick={() => setIsToggelChecked(!isToggleChecked)}>
+                                {isToggleChecked ? <StationsUpIcon /> : <StationsDownIcon />} {stationsPathList.length + 1}개 역 ({stationsPathTime}분)
+                            </StationsToggle>
+                            {isToggleChecked && stationsPathList.length > 0 && (
+                                <div style={{ marginTop: '0.5rem' }}>
+                                    {stationsPathList.map((station, index) => (
+                                        <div key={index}>{station}</div>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                        : <div>1개 역 ({stationsPathTime}분)</div>}
                 </StationsPathInfo>
+
+
 
                 {/* 도착역 정보 */}
                 <StationContainer>
