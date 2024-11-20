@@ -1,6 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Subway from '../../assets/Seoul_subway_linemap_ko.svg';
-import styled from "styled-components";
+import styled from 'styled-components';
+import { startStationState, endStationState } from '../../atoms/atom';
+import { useRecoilState } from 'recoil';
+import LocationPicker from './LocationPicker';
 
 const StyledMapContainer = styled.div`
     width: 100%;
@@ -23,8 +26,10 @@ const Map = () => {
     const minHeight = 450; // 최소 높이 (최대 축소 한계)
     const maxWidth = 2400; // 최대 너비 (최대 확대 한계)
     const maxHeight = 2160; // 최대 높이 (최대 확대 한계)
-    const svgWidth = 2400; // SVG의 전체 너비
-    const svgHeight = 2160; // SVG의 전체 높이
+
+    const [startStation, setStartStation] = useRecoilState(startStationState);
+    const [endStation, setEndStation] = useRecoilState(endStationState);
+    const [pickerPosition, setPickerPosition] = useState({ x: 0, y: 0, stationName: '', visible: false });
 
     useEffect(() => {
         const objectElement = svgRef.current;
@@ -36,34 +41,37 @@ const Map = () => {
                 return;
             }
 
-            // SVG 초기 설정 및 클릭 이벤트 처리
+            // SVG 초기 설정
             const svgRoot = svgDoc.documentElement;
             const svgWidth = svgRoot.viewBox.baseVal.width;
             const svgHeight = svgRoot.viewBox.baseVal.height;
-
             const centerX = (3420 / 5724) * svgWidth;
             const centerY = (2354 / 6516) * svgHeight;
 
-            // 초기 뷰박스 중앙 위치 설정
             currentViewBox.current = {
                 x: centerX - 500 / 2,
                 y: centerY - 450 / 2,
                 width: 500,
-                height: 450
+                height: 450,
             };
             updateViewBox();
 
             // 텍스트 요소에 클릭 이벤트 추가
             const targetElements = svgDoc.querySelectorAll('#name_ko text, #name_ko_overlap text');
             targetElements.forEach((element) => {
-                element.addEventListener('click', () => {
-                    const tspanElements = element.querySelectorAll('tspan');
-                    if (tspanElements.length > 0) {
-                        const tspanTexts = Array.from(tspanElements).map(tspan => tspan.textContent).join('');
-                        console.log('tspan 값:', tspanTexts);
-                    } else {
-                        console.log('클릭된 text 요소의 값:', element.textContent);
-                    }
+                element.addEventListener('click', (event) => {
+                    const rect = element.getBoundingClientRect(); // 클릭된 텍스트의 위치 가져오기
+                    const stationName = element.querySelectorAll('tspan').length > 0
+                        ? Array.from(element.querySelectorAll('tspan')).map(tspan => tspan.textContent).join('')
+                        : element.textContent.trim();
+
+                    // 화면 좌표 기준으로 LocationPicker 위치 설정
+                    setPickerPosition({
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + rect.height - 20,
+                        stationName,
+                        visible: true,
+                    });
                 });
             });
 
@@ -71,11 +79,9 @@ const Map = () => {
             svgDoc.addEventListener('pointerdown', onPointerDown, { passive: false });
             svgDoc.addEventListener('pointermove', onPointerMove, { passive: false });
             svgDoc.addEventListener('pointerup', onPointerUp, { passive: false });
-
             svgDoc.addEventListener('touchstart', onTouchStart, { passive: false });
             svgDoc.addEventListener('touchmove', onTouchMove, { passive: false });
             svgDoc.addEventListener('touchend', onPointerUp, { passive: false });
-
             svgDoc.addEventListener('wheel', onZoom, { passive: false });
         };
 
@@ -86,27 +92,20 @@ const Map = () => {
         };
     }, []);
 
-    // 이벤트로부터 포인터 위치 가져오기
+    // 이벤트 핸들러들
     const getPointFromEvent = (event) => {
-        const point = { x: 0, y: 0 };
         if (event.targetTouches) {
-            point.x = event.targetTouches[0].clientX;
-            point.y = event.targetTouches[0].clientY;
-        } else {
-            point.x = event.clientX;
-            point.y = event.clientY;
+            return { x: event.targetTouches[0].clientX, y: event.targetTouches[0].clientY };
         }
-        return point;
+        return { x: event.clientX, y: event.clientY };
     };
 
-    // 두 손가락 간 거리 계산
-    const calculateDistance = (touches) => { 
+    const calculateDistance = (touches) => {
         const dx = touches[0].clientX - touches[1].clientX;
         const dy = touches[0].clientY - touches[1].clientY;
         return Math.sqrt(dx * dx + dy * dy);
     };
 
-    // 터치 시작 이벤트 처리
     const onTouchStart = (event) => {
         if (event.touches.length === 2) {
             initialDistance.current = calculateDistance(event.touches);
@@ -115,13 +114,11 @@ const Map = () => {
         }
     };
 
-    // 터치 이동 이벤트 처리
     const onTouchMove = (event) => {
         if (event.touches.length === 2) {
             event.preventDefault();
             const newDistance = calculateDistance(event.touches);
             const zoomFactor = newDistance / initialDistance.current;
-
             const viewBoxCenterX = currentViewBox.current.x + currentViewBox.current.width / 2;
             const viewBoxCenterY = currentViewBox.current.y + currentViewBox.current.height / 2;
 
@@ -133,28 +130,23 @@ const Map = () => {
             if (newWidth > maxWidth) newWidth = maxWidth;
             if (newHeight > maxHeight) newHeight = maxHeight;
 
-            // 줌 한계 적용
             currentViewBox.current.x = viewBoxCenterX - newWidth / 2;
             currentViewBox.current.y = viewBoxCenterY - newHeight / 2;
-
             currentViewBox.current.width = newWidth;
             currentViewBox.current.height = newHeight;
 
             updateViewBox();
             initialDistance.current = newDistance;
         } else {
-            onPointerMove(event); // 포인터 이동 처리
+            onPointerMove(event);
         }
     };
 
-    // 포인터 다운 이벤트 처리
     const onPointerDown = (event) => {
         isPointerDown.current = true;
-        const point = getPointFromEvent(event);
-        pointerOrigin.current = { x: point.x, y: point.y };
+        pointerOrigin.current = getPointFromEvent(event);
     };
 
-    // 포인터 이동 이벤트 처리
     const onPointerMove = (event) => {
         if (!isPointerDown.current) return;
         event.preventDefault();
@@ -163,20 +155,17 @@ const Map = () => {
         const deltaX = point.x - pointerOrigin.current.x;
         const deltaY = point.y - pointerOrigin.current.y;
 
-        const sensitivity = 2;
-        currentViewBox.current.x -= deltaX * sensitivity;
-        currentViewBox.current.y -= deltaY * sensitivity;
+        currentViewBox.current.x -= deltaX * 2;
+        currentViewBox.current.y -= deltaY * 2;
 
         updateViewBox();
-        pointerOrigin.current = { x: point.x, y: point.y };
+        pointerOrigin.current = point;
     };
 
-    // 포인터 업 이벤트 처리
     const onPointerUp = () => {
         isPointerDown.current = false;
     };
 
-    // 줌 이벤트 처리
     const onZoom = (event) => {
         event.preventDefault();
         const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
@@ -187,7 +176,6 @@ const Map = () => {
         let newWidth = currentViewBox.current.width / zoomFactor;
         let newHeight = currentViewBox.current.height / zoomFactor;
 
-        // 줌 한계 적용
         if (newWidth < minWidth) newWidth = minWidth;
         if (newHeight < minHeight) newHeight = minHeight;
         if (newWidth > maxWidth) newWidth = maxWidth;
@@ -201,7 +189,6 @@ const Map = () => {
         updateViewBox();
     };
 
-    // 뷰박스 업데이트
     const updateViewBox = () => {
         const viewBoxString = `${currentViewBox.current.x} ${currentViewBox.current.y} ${currentViewBox.current.width} ${currentViewBox.current.height}`;
         svgRef.current.contentDocument.documentElement.setAttribute('viewBox', viewBoxString);
@@ -214,6 +201,20 @@ const Map = () => {
                 type="image/svg+xml"
                 data={Subway}
             />
+            {pickerPosition.visible && (
+                <LocationPicker
+                    x={pickerPosition.x}
+                    y={pickerPosition.y}
+                    onStartClick={() => {
+                        setStartStation(pickerPosition.stationName);
+                        setPickerPosition({ ...pickerPosition, visible: false });
+                    }}
+                    onEndClick={() => {
+                        setEndStation(pickerPosition.stationName);
+                        setPickerPosition({ ...pickerPosition, visible: false });
+                    }}
+                />
+            )}
         </StyledMapContainer>
     );
 };
