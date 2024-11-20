@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { climateCardState } from '../../atoms/atom';
+import { useRecoilState } from 'recoil';
 
 const ToggleContainer = styled.div`
     display: flex;
@@ -62,22 +64,22 @@ const Text = styled.div`
 `;
 
 export const SwitchToggle = () => {
-    const [isOn, setIsOn] = useState(false);
+    const [hasClimateCard, setHasClimateCard] = useRecoilState(climateCardState);
 
     const toggleHandler = () => {
-        setIsOn(!isOn);
+        setHasClimateCard(!hasClimateCard);
     };
 
     return (
         <ToggleContainer onClick={toggleHandler}>
             {/* 토글 버튼 */}
-            <ToggleWrapper className={isOn ? "toggle--checked" : ""}>
-                <ToggleCircle className={isOn ? "toggle--checked" : ""} />
+            <ToggleWrapper className={hasClimateCard ? "toggle--checked" : ""}>
+                <ToggleCircle className={hasClimateCard ? "toggle--checked" : ""} />
             </ToggleWrapper>
             {/* 토글 글씨 */}
             <TextContainer>
-                <Text $visible={!isOn}>일반 경로추천</Text>
-                <Text $visible={isOn}>기후동행카드 경로추천</Text>
+                <Text $visible={!hasClimateCard}>일반 경로추천</Text>
+                <Text $visible={hasClimateCard}>기후동행카드 경로추천</Text>
             </TextContainer>
         </ToggleContainer>
     );

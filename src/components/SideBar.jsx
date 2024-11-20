@@ -117,19 +117,19 @@ const SubwayLiveIcon = styled(FaTrainSubway)`
 `;
 
 const SideBar = () => {
-    const setSidebarOpen = useSetRecoilState(sidebarState);
-    const [isLogin, setLoginState] = useRecoilState(loginState);
+    const setSidebar = useSetRecoilState(sidebarState);
+    const [isLogin, setIsLogin] = useRecoilState(loginState);
 
     return (
         <>
             {/* 오버레이: 사이드바 외부 클릭 시 닫기 */}
-            <Overlay onClick={() => setSidebarOpen(false)} />
+            <Overlay onClick={() => setSidebar(false)} />
 
             {/* 로그인 여부에 따른 사이드바 내용 */}
             {isLogin ? (
                 <SidebarContainer>
                     {/* 로그인 상태: 프로필 사진과 이름 */}
-                    <LoginPrompt to="/mypage" onClick={() => setSidebarOpen(false)}>
+                    <LoginPrompt to="/mypage" onClick={() => setSidebar(false)}>
                         <ProfileImage src="/karina.png" alt="Profile" />
                         카리나
                     </LoginPrompt>
@@ -137,10 +137,10 @@ const SideBar = () => {
                     <Divider />
                     {/* 메뉴 그룹 */}
                     <MenuGroup>
-                        <MenuItem to="/subway/search" onClick={() => setSidebarOpen(false)}>
+                        <MenuItem to="/subway/search" onClick={() => setSidebar(false)}>
                             <SubwaySearchIcon />경로조회
                         </MenuItem>
-                        <MenuItem to="/subway/live" onClick={() => setSidebarOpen(false)}>
+                        <MenuItem to="/subway/live" onClick={() => setSidebar(false)}>
                             <SubwayLiveIcon />실시간위치
                         </MenuItem>
                     </MenuGroup>
@@ -148,7 +148,7 @@ const SideBar = () => {
                     <Divider />
 
                     {/* 로그아웃 버튼 */}
-                    <LoginText to="/subway/search" onClick={() => { setLoginState(false); setSidebarOpen(false); }}>
+                    <LoginText to="/subway/search" onClick={() => { setIsLogin(false); setSidebar(false); }}>
                         로그아웃
                     </LoginText>
 
@@ -157,7 +157,7 @@ const SideBar = () => {
             ) : (
                 <SidebarContainer>
                     {/* 비로그인 상태: 로그인 링크 */}
-                    <LoginPrompt to="/auth/login" onClick={() => setSidebarOpen(false)}>
+                    <LoginPrompt to="/auth/login" onClick={() => setSidebar(false)}>
                         로그인을 해주세요
                     </LoginPrompt>
 
@@ -165,10 +165,10 @@ const SideBar = () => {
 
                     {/* 메뉴 그룹 */}
                     <MenuGroup>
-                        <MenuItem to="/subway/search" onClick={() => setSidebarOpen(false)}>
+                        <MenuItem to="/subway/search" onClick={() => setSidebar(false)}>
                             <SubwaySearchIcon />경로조회
                         </MenuItem>
-                        <MenuItem to="/subway/live" onClick={() => setSidebarOpen(false)}>
+                        <MenuItem to="/subway/live" onClick={() => setSidebar(false)}>
                             <SubwayLiveIcon />실시간위치
                         </MenuItem>
                     </MenuGroup>
@@ -176,7 +176,7 @@ const SideBar = () => {
                     <Divider />
 
                     {/* 로그인 버튼 */}
-                    <LoginText onClick={() => { setLoginState(true); setSidebarOpen(false); }}>
+                    <LoginText onClick={() => { setIsLogin(true); setSidebar(false); }}>
                         로그인
                     </LoginText>
 

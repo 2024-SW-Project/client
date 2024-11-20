@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { FaRegStar } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
 import { FaRegCalendar } from "react-icons/fa6";
 import TransferInfo from '../components/SubwayRouteComp/TransferInfo';
 import StationDetailInfo from '../components/SubwayRouteComp/StationDetailInfo';
+import { bookmarkState } from '../atoms/atom';
 
 const Container = styled.div`
     height: 100vh;
@@ -66,7 +67,7 @@ const CalendarIcon = styled(FaRegCalendar)`
 `;
 
 const SubwayRoutePage = () => {
-    const [isBookmark, setIsBookmark] = useState(false);
+    const [isBookmark, setIsBookmark] = useRecoilState(bookmarkState);
     const transferCount = 2;
 
     return (

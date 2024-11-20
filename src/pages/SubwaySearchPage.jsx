@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Map from '../components/SubwaySearchComp/Map';
 import InputStation from '../components/SubwaySearchComp/InputStation';
 import { FaArrowRightArrowLeft } from "react-icons/fa6";
 import { SwitchToggle } from '../components/SubwaySearchComp/SwitchToggle';
+import { startStationState } from '../atoms/atom'
+import { endStationState } from '../atoms/atom'
+import { useRecoilState } from 'recoil';
 
 const Container = styled.div`
     height: 100vh;
@@ -54,28 +57,28 @@ const ToggleWrapperContainer = styled.div`
 `;
 
 const SubwaySearchPage = () => {
-    const [stValue, setStValue] = useState('');
-    const [endValue, setEndValue] = useState('');
+    const [startStation, setStartStation] = useRecoilState(startStationState);
+    const [endStation, setEndStation] = useRecoilState(endStationState);
 
     // 출발역 입력 값 변경
     const handleStartChange = (newValue) => {
         console.log("Start station:", newValue);
-        setStValue(newValue);
+        setStartStation(newValue);
     };
 
     // 도착역 입력 값 변경
     const handleEndChange = (newValue) => {
         console.log("End station:", newValue);
-        setEndValue(newValue);
+        setEndStation(newValue);
     };
 
     return (
         <Container>
             {/* 출발역과 도착역 입력 필드 */}
             <InputContainer>
-                <InputStation placeholder="출발역" value={stValue} onChange={handleStartChange} />
+                <InputStation placeholder="출발역" value={startStation} onChange={handleStartChange} />
                 <DividerIcon />
-                <InputStation placeholder="도착역" value={endValue} onChange={handleEndChange} />
+                <InputStation placeholder="도착역" value={endStation} onChange={handleEndChange} />
             </InputContainer>
             {/* 지도 컴포넌트 */}
             <MapContainer>
