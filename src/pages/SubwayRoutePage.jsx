@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { FaRegStar } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
 import { FaRegCalendar } from "react-icons/fa6";
 import TransferInfo from '../components/SubwayRouteComp/TransferInfo';
 import StationDetailInfo from '../components/SubwayRouteComp/StationDetailInfo';
+import { bookmarkState } from '../atoms/atom';
 
 const Container = styled.div`
     height: 100vh;
@@ -66,7 +67,7 @@ const CalendarIcon = styled(FaRegCalendar)`
 `;
 
 const SubwayRoutePage = () => {
-    const [isBookmark, setIsBookmark] = useState(false);
+    const [isBookmark, setIsBookmark] = useRecoilState(bookmarkState);
     const transferCount = 2;
 
     return (
@@ -93,8 +94,8 @@ const SubwayRoutePage = () => {
                 startLineNumber="6"
                 startLineColor="#b5651d"
                 startDirection="응암행 | 빠른 환승 3-4"
-                startDoorInfo="내리는문 왼쪽"
-                travelInfo="2개 역 (2분)"
+                stationsPathList={["안암"]}
+                stationsPathTime={2}
                 endTime="01:17"
                 endStation="보문"
                 endDoorInfo="내리는문 왼쪽"
@@ -109,8 +110,8 @@ const SubwayRoutePage = () => {
                 startLineNumber="우이"
                 startLineColor="#a4c639"
                 startDirection="북한산우이행 | 빠른 환승 1-2"
-                startDoorInfo="내리는문 왼쪽"
-                travelInfo="1개 역 (1분)"
+                stationsPathList={[]}
+                stationsPathTime={1}
                 endTime="01:23"
                 endStation="성신여대입구"
                 endDoorInfo="내리는문 오른쪽"
@@ -125,11 +126,11 @@ const SubwayRoutePage = () => {
                 startLineNumber="4"
                 startLineColor="#009bdc"
                 startDirection="불암산행 | 빠른 하차 3-1, 8-2"
-                startDoorInfo="내리는문 오른쪽"
-                travelInfo="3개 역 (7분)"
+                stationsPathList={["길음", "미아사거리", "미아"]}
+                stationsPathTime={9}
                 endTime="01:36"
                 endStation="수유"
-                endDoorInfo="내리는문 왼쪽"
+                endDoorInfo="내리는문 오른쪽"
             />
 
         </Container>
