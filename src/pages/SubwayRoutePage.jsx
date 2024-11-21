@@ -6,6 +6,7 @@ import { FaRegCalendar } from "react-icons/fa6";
 import TransferInfo from '../components/SubwayRouteComp/TransferInfo';
 import StationDetailInfo from '../components/SubwayRouteComp/StationDetailInfo';
 import { bookmarkState } from '../atoms/atom';
+import { useRecoilState } from 'recoil';
 
 const Container = styled.div`
     height: 100vh;
