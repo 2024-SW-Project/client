@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Map from '../components/SubwaySearchComp/Map';
 import InputStation from '../components/SubwaySearchComp/InputStation';
 import { FaArrowRightArrowLeft } from "react-icons/fa6";
 import { SwitchToggle } from '../components/SubwaySearchComp/SwitchToggle';
-import { startStationState } from '../atoms/atom'
-import { endStationState } from '../atoms/atom'
-import { useRecoilState } from 'recoil';
+import { startStationState, endStationState, climateCardState, routeResponseState } from '../atoms/atom'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import axios from 'axios';
 
 const Container = styled.div`
     height: 100vh;
@@ -59,6 +59,37 @@ const ToggleWrapperContainer = styled.div`
 const SubwaySearchPage = () => {
     const [startStation, setStartStation] = useRecoilState(startStationState);
     const [endStation, setEndStation] = useRecoilState(endStationState);
+    const hasClimateCard = useRecoilValue(climateCardState);
+    const setRouteResponse = useSetRecoilState(routeResponseState);
+
+    // POST 요청 함수
+    const postRequest = async () => {
+        const postData = {
+            start_station_name: startStation,
+            end_station_name: endStation,
+            is_climate_card_eligible: hasClimateCard,
+        };
+
+        try {
+            const res = await axios.get('http://localhost:4000/subwayRoute', postData);
+            //const response = await axios.post('http://localhost:4000/subwayRoute', data);
+            console.log('postData:', postData)
+            console.log('Response:', res.data[0].data);
+            setRouteResponse(res.data[0].data);
+            window.location.href = '/subway/route'
+        } catch (error) {
+            console.error('Error during POST request:', error);
+        }
+    };
+
+    //page 첫 진입때만 역state 초기화
+    
+    // 조건에 따라 POST 요청 보내기
+    useEffect(() => {
+        if (startStation !== "" && endStation !== "") {
+            postRequest();
+        }
+    }, [startStation, endStation]);
 
     // 출발역 입력 값 변경
     const handleStartChange = (newValue) => {

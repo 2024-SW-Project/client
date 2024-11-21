@@ -27,9 +27,16 @@ export const endStationState = atom({
 export const climateCardState = atom({
     key: 'climateCardState',
     default: false,
+    effects_UNSTABLE: [persistAtom],
 });
 
 export const bookmarkState = atom({
     key: 'bookmarkState',
     default: false,
+});
+
+export const routeResponseState = atom({
+    key: 'routeResponseState', // 고유한 키 값
+    default: {}, // 초기값 (빈 객체)
+    effects_UNSTABLE: [persistAtom],
 });

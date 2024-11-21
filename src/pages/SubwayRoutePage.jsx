@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FaRegStar } from "react-icons/fa6";
 import { FaStar } from "react-icons/fa6";
 import { FaRegCalendar } from "react-icons/fa6";
 import TransferInfo from '../components/SubwayRouteComp/TransferInfo';
 import StationDetailInfo from '../components/SubwayRouteComp/StationDetailInfo';
-import { bookmarkState } from '../atoms/atom';
-import { useRecoilState } from 'recoil';
+import { bookmarkState, startStationState, endStationState, climateCardState, routeResponseState } from '../atoms/atom';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 const Container = styled.div`
     height: 100vh;
@@ -69,14 +69,58 @@ const CalendarIcon = styled(FaRegCalendar)`
 
 const SubwayRoutePage = () => {
     const [isBookmark, setIsBookmark] = useRecoilState(bookmarkState);
-    const transferCount = 2;
+    const [startStation, setStartStation] = useRecoilState(startStationState);
+    const [endStation, setEndStation] = useRecoilState(endStationState);
+    const hasClimateCard = useRecoilValue(climateCardState);
+    const routeResponse = useRecoilValue(routeResponseState);
+
+    const [travelTime, setTravelTime] = useState(0);
+    const [transferCount, setTransferCount] = useState(0);
+
+    const calculateTravelTime = (departure, arrival) => {
+        const [depHour, depMinute] = departure.split(':').map(Number);
+        const [arrHour, arrMinute] = arrival.split(':').map(Number);
+
+        const depTotalMinutes = depHour * 60 + depMinute;
+        const arrTotalMinutes = arrHour * 60 + arrMinute;
+
+        return arrTotalMinutes - depTotalMinutes;
+    };
+
+    const getLineColor = (lineNumber) => {
+        const lineColors = {
+            2: '#009bdc',
+            "우이": '#a4c639',
+            4: '#b5651d',
+            // 다른 노선 색 추가 가능
+        };
+
+        return lineColors[lineNumber] || '#333';
+    };
+
+    const convertSecondsToMinutes = (seconds) => {
+        return Math.round(seconds / 60);
+    };
+
+    useEffect(() => {
+        console.log(hasClimateCard);
+        console.log(routeResponse);
+
+        setStartStation(routeResponse.pathInfo.start_station_name);
+        setEndStation(routeResponse.pathInfo.end_station_name);
+        setIsBookmark(routeResponse.pathInfo.is_favorite_route);
+        setTravelTime(routeResponse.pathInfo.travel_time);
+        setTransferCount(routeResponse.exChangeInfoSet.exChangeInfo.length);
+
+        console.log(transferCount);
+    }, []);
 
     return (
         <Container>
             {/* 소요시간 정보 */}
             <TopContainer>
                 <TimeContainer>
-                    <TimeText>32분</TimeText>
+                    <TimeText>{travelTime}분</TimeText>
                     <TransferText>환승 {transferCount}회</TransferText>
                 </TimeContainer>
                 {/* 즐겨찾기, 캘린더 아이콘 */}
@@ -88,51 +132,36 @@ const SubwayRoutePage = () => {
 
             {/* 경로 세부 정보 */}
 
-            {/* 고려대-보문 구간 */}
-            <StationDetailInfo
-                startTime="01:14"
-                startStation="고려대"
-                startLineNumber="6"
-                startLineColor="#b5651d"
-                startDirection="응암행 | 빠른 환승 3-4"
-                stationsPathList={["안암"]}
-                stationsPathTime={2}
-                endTime="01:17"
-                endStation="보문"
-                endDoorInfo="내리는문 왼쪽"
-            />
+            {routeResponse.onStationSet.station.map((station, index) => (
+                <React.Fragment key={index}>
+                    {/* StationDetailInfo 컴포넌트 */}
+                    <StationDetailInfo
+                        startTime={station.departure_time}
+                        startStation={station.start_station_name}
+                        startLineNumber={station.line_name}
+                        startLineColor={getLineColor(station.line_name)}
+                        startDirection={
+                            `${station.way_station_name}행 ${station.fast_train_info ? `| 빠른 환승 ${station.fast_train_info}` : ''
+                            }`
+                        }
+                        stationsPathList={station.station_name_list}
+                        stationsPathTime={calculateTravelTime(station.departure_time, station.arrival_time)}
+                        endTime={station.arrival_time}
+                        endStation={station.way_station_name}
+                        endDoorInfo="내리는문 정보 추가" // 임의 값
+                    />
 
-            <TransferInfo walkTime={3} />
-
-            {/* 보문-성신여대입구 구간 */}
-            <StationDetailInfo
-                startTime="01:22"
-                startStation="보문"
-                startLineNumber="우이"
-                startLineColor="#a4c639"
-                startDirection="북한산우이행 | 빠른 환승 1-2"
-                stationsPathList={[]}
-                stationsPathTime={1}
-                endTime="01:23"
-                endStation="성신여대입구"
-                endDoorInfo="내리는문 오른쪽"
-            />
-
-            <TransferInfo walkTime={4} />
-
-            {/* 성신여대입구-수유 구간 */}
-            <StationDetailInfo
-                startTime="01:29"
-                startStation="성신여대입구"
-                startLineNumber="4"
-                startLineColor="#009bdc"
-                startDirection="불암산행 | 빠른 하차 3-1, 8-2"
-                stationsPathList={["길음", "미아사거리", "미아"]}
-                stationsPathTime={9}
-                endTime="01:36"
-                endStation="수유"
-                endDoorInfo="내리는문 오른쪽"
-            />
+                    {/* TransferInfo 컴포넌트: 마지막 역은 제외 */}
+                    {index < routeResponse.onStationSet.station.length - 1 && (
+                        <TransferInfo
+                            walkTime={convertSecondsToMinutes(
+                                routeResponse.exChangeInfoSet.exChangeInfo[index]?.exWalkTime || 0
+                            )}
+                        />
+                    )}
+                </React.Fragment>
+            ))
+            }
 
         </Container>
     );
