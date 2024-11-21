@@ -72,9 +72,7 @@ const SubwaySearchPage = () => {
 
         try {
             const res = await axios.get('http://localhost:4000/subwayRoute', postData);
-            //const response = await axios.post('http://localhost:4000/subwayRoute', data);
-            console.log('postData:', postData)
-            console.log('Response:', res.data[0].data);
+            //const res = await axios.post('http://localhost:4000/subwayRoute', postData);
             setRouteResponse(res.data[0].data);
             window.location.href = '/subway/route'
         } catch (error) {
@@ -82,8 +80,6 @@ const SubwaySearchPage = () => {
         }
     };
 
-    //page 첫 진입때만 역state 초기화
-    
     // 조건에 따라 POST 요청 보내기
     useEffect(() => {
         if (startStation !== "" && endStation !== "") {

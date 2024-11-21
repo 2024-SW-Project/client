@@ -103,16 +103,14 @@ const SubwayRoutePage = () => {
     };
 
     useEffect(() => {
-        console.log(hasClimateCard);
-        console.log(routeResponse);
+        console.log('hasClimateCard:', hasClimateCard);
+        console.log('routeResponse:', routeResponse);
 
         setStartStation(routeResponse.pathInfo.start_station_name);
         setEndStation(routeResponse.pathInfo.end_station_name);
         setIsBookmark(routeResponse.pathInfo.is_favorite_route);
         setTravelTime(routeResponse.pathInfo.travel_time);
         setTransferCount(routeResponse.exChangeInfoSet.exChangeInfo.length);
-
-        console.log(transferCount);
     }, []);
 
     return (
