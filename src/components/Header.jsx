@@ -2,8 +2,8 @@ import React from 'react';
 import styled from "styled-components";
 import { FaBars } from "react-icons/fa6";
 import { useSetRecoilState } from 'recoil';
-import { sidebarState } from '../atoms/atom';
-import { Link } from 'react-router-dom';
+import { sidebarState, startStationState, endStationState } from '../atoms/atom';
+import { useNavigate } from 'react-router-dom';
 
 const Container = styled.div`
     height: 50px;
@@ -66,14 +66,23 @@ const MenuButton = styled.button`
 
 const Header = () => {
     const setSidebar = useSetRecoilState(sidebarState);
+    const setStartStation = useSetRecoilState(startStationState);
+    const setEndStation = useSetRecoilState(endStationState);
+    const navigate = useNavigate();
+
+    const handleLogoClick = () => {
+        // 상태 초기화
+        setStartStation("");
+        setEndStation("");
+        // 페이지 이동
+        navigate("/subway/search");
+    };
 
     return (
         <Container>
             {/* 로고 이미지와 메뉴 텍스트 */}
             <LeftSection>
-                <Link to="/subway/search">
-                    <LogoImg src="/logo1.png" alt="logo" />
-                </Link>
+                <LogoImg src="/logo1.png" alt="logo" onClick={handleLogoClick} />
                 <Divider />
                 <MenuText>경로 찾기</MenuText>
             </LeftSection>

@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { sidebarState, loginState } from '../atoms/atom';
+import { sidebarState, loginState, startStationState, endStationState } from '../atoms/atom';
 import { Link } from 'react-router-dom';
 import { FaLocationDot, FaTrainSubway } from "react-icons/fa6";
+import { useNavigate } from 'react-router-dom';
 
 const SidebarContainer = styled.div`
     position: fixed;
@@ -61,14 +62,15 @@ const MenuGroup = styled.div`
     gap: 1.5rem;
 `;
 
-// 개별 메뉴 항목
-const MenuItem = styled(Link)`
+// 개별 메뉴 항목 (div로 수정)
+const MenuItem = styled.div`
     width: fit-content;
     font-size: 1rem;
     color: #181820;
     text-decoration: none;
     display: flex;
     align-items: center;
+    cursor: pointer;
 
     &:hover {
         color: #4D7EFF;
@@ -119,6 +121,18 @@ const SubwayLiveIcon = styled(FaTrainSubway)`
 const SideBar = () => {
     const setSidebar = useSetRecoilState(sidebarState);
     const [isLogin, setIsLogin] = useRecoilState(loginState);
+    const setStartStation = useSetRecoilState(startStationState);
+    const setEndStation = useSetRecoilState(endStationState);
+    const navigate = useNavigate();
+
+    const handleRouteSearchClick = () => {
+        // 상태 초기화
+        setSidebar(false);
+        setStartStation("");
+        setEndStation("");
+        // 페이지 이동
+        navigate("/subway/search");
+    };
 
     return (
         <>
@@ -137,18 +151,22 @@ const SideBar = () => {
                     <Divider />
                     {/* 메뉴 그룹 */}
                     <MenuGroup>
-                        <MenuItem to="/subway/search" onClick={() => setSidebar(false)}>
+                        {/* 경로조회 메뉴 (div로 클릭 이벤트 추가) */}
+                        <MenuItem onClick={handleRouteSearchClick}>
                             <SubwaySearchIcon />경로조회
                         </MenuItem>
-                        <MenuItem to="/subway/live" onClick={() => setSidebar(false)}>
-                            <SubwayLiveIcon />실시간위치
-                        </MenuItem>
+                        {/* 실시간위치 메뉴 (Link로 페이지 이동) */}
+                        <Link to="/subway/live" onClick={() => setSidebar(false)} style={{ textDecoration: 'none' }}>
+                            <MenuItem>
+                                <SubwayLiveIcon />실시간위치
+                            </MenuItem>
+                        </Link>
                     </MenuGroup>
 
                     <Divider />
 
                     {/* 로그아웃 버튼 */}
-                    <LoginText to="/subway/search" onClick={() => { setIsLogin(false); setSidebar(false); }}>
+                    <LoginText onClick={() => { setIsLogin(false); setSidebar(false); }}>
                         로그아웃
                     </LoginText>
 
@@ -165,12 +183,16 @@ const SideBar = () => {
 
                     {/* 메뉴 그룹 */}
                     <MenuGroup>
-                        <MenuItem to="/subway/search" onClick={() => setSidebar(false)}>
+                        {/* 경로조회 메뉴 */}
+                        <MenuItem onClick={handleRouteSearchClick}>
                             <SubwaySearchIcon />경로조회
                         </MenuItem>
-                        <MenuItem to="/subway/live" onClick={() => setSidebar(false)}>
-                            <SubwayLiveIcon />실시간위치
-                        </MenuItem>
+                        {/* 실시간위치 메뉴 */}
+                        <Link to="/subway/live" onClick={() => setSidebar(false)} style={{ textDecoration: 'none' }}>
+                            <MenuItem>
+                                <SubwayLiveIcon />실시간위치
+                            </MenuItem>
+                        </Link>
                     </MenuGroup>
 
                     <Divider />
