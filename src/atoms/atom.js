@@ -35,8 +35,9 @@ export const bookmarkState = atom({
     default: false,
 });
 
+// 경로 상세 조회 요청에 대한 Response
 export const routeResponseState = atom({
-    key: 'routeResponseState', // 고유한 키 값
-    default: {}, // 초기값 (빈 객체)
+    key: 'routeResponseState',
+    default: {},
     effects_UNSTABLE: [persistAtom],
 });
