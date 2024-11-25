@@ -77,8 +77,16 @@ const MenuItem = styled.div`
     }
 `;
 
-// 로그인/로그아웃 글자 버튼
-const LoginText = styled.div`
+// 로그인/회원가입 텍스트를 담는 컨테이너
+const LoginSignupContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+`;
+
+// 로그인/로그아웃/회원가입 글자 버튼
+const LoginSignupText = styled.div`
     font-size: 12px;
     color: #c0c0c0;
     text-align: center;
@@ -166,9 +174,9 @@ const SideBar = () => {
                     <Divider />
 
                     {/* 로그아웃 버튼 */}
-                    <LoginText onClick={() => { setIsLogin(false); setSidebar(false); }}>
+                    <LoginSignupText onClick={() => { setIsLogin(false); setSidebar(false); }}>
                         로그아웃
-                    </LoginText>
+                    </LoginSignupText>
 
                     <FooterLogo src="/logo2.png" alt="logo" />
                 </SidebarContainer>
@@ -198,9 +206,18 @@ const SideBar = () => {
                     <Divider />
 
                     {/* 로그인 버튼 */}
-                    <LoginText onClick={() => { setIsLogin(true); setSidebar(false); }}>
-                        로그인
-                    </LoginText>
+                    <LoginSignupContainer>
+                        <LoginSignupText onClick={() => { setIsLogin(true); setSidebar(false); }}>
+                            로그인
+                        </LoginSignupText>
+                        <Link to="/auth/signup" onClick={() => setSidebar(false)}>
+                            <LoginSignupText onClick={() => { setSidebar(false); }}>
+                                회원가입
+                            </LoginSignupText>
+                        </Link>
+
+                    </LoginSignupContainer>
+
 
                     <FooterLogo src="/logo2.png" alt="logo" />
                 </SidebarContainer>
