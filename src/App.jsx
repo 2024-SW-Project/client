@@ -13,6 +13,10 @@ import MyPage from './pages/MyPage';
 import SubwayRoutePage from './pages/SubwayRoutePage';
 
 import { sidebarState } from './atoms/atom';
+import SignUpPage from './pages/SignUpPage';
+import FindIdPage from './pages/FindIdPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import SubwaySavePage from './pages/SubwaySavePage';
 
 const RootLayout = () => {
   const isSidebarOpen = useRecoilValue(sidebarState);
@@ -33,24 +37,40 @@ const router = createBrowserRouter([
     element: <RootLayout />, // 최상위 요소로 RootLayout 지정
     children: [
       {
-        path: '/subway/search',
-        element: <SubwaySearchPage />
-      },
-      {
         path: '/auth/login',
         element: <LoginPage />
       },
       {
-        path: '/subway/live',
-        element: <SubwayLivePage />
+        path: '/auth/signup',
+        element: <SignUpPage />
+      },
+      {
+        path: '/auth/find-id',
+        element: <FindIdPage />
+      },
+      {
+        path: '/auth/reset-password',
+        element: <ResetPasswordPage />
       },
       {
         path: '/mypage',
         element: <MyPage />
       },
       {
+        path: '/subway/search',
+        element: <SubwaySearchPage />
+      },
+      {
+        path: '/subway/live',
+        element: <SubwayLivePage />
+      },
+      {
         path: '/subway/route',
         element: <SubwayRoutePage />
+      },
+      {
+        path: '/subway/save',
+        element: <SubwaySavePage />
       },
     ],
   },

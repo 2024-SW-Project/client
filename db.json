@@ -1,0 +1,70 @@
+{
+    "subwayRoute": [
+        {
+            "data": {
+                "pathInfo": {
+                    "start_station_name": "고려대",
+                    "end_station_name": "수유(강북구청)",
+                    "travel_time": 17,
+                    "is_favorite_route": true
+                },
+                "onStationSet": {
+                    "station": [
+                        {
+                            "start_station_name": "고려대",
+                            "line_name": 2,
+                            "departure_time": "01:14",
+                            "way_code": 1,
+                            "fast_train_info": "3-4",
+                            "station_name_list": [
+                                "안암"
+                            ],
+                            "way_station_name": "보문",
+                            "arrival_time": "01:17"
+                        },
+                        {
+                            "start_station_name": "보문",
+                            "line_name": "우이",
+                            "departure_time": "01:22",
+                            "way_code": 2,
+                            "fast_train_info": "1-2",
+                            "station_name_list": [],
+                            "way_station_name": "성신여대입구",
+                            "arrival_time": "01:23"
+                        },
+                        {
+                            "start_station_name": "성신여대입구",
+                            "line_name": 4,
+                            "departure_time": "01:29",
+                            "way_code": 1,
+                            "fast_train_info": null,
+                            "station_name_list": [
+                                "길음",
+                                "미아사거리",
+                                "미아"
+                            ],
+                            "way_station_name": "수유",
+                            "arrival_time": "01:36"
+                        }
+                    ]
+                },
+                "exChangeInfoSet": {
+                    "exChangeInfo": [
+                        {
+                            "ex_start_line_num": 2,
+                            "ex_end_line_num": 113,
+                            "ex_station_name": "보문",
+                            "exWalkTime": 95
+                        },
+                        {
+                            "ex_start_line_name": 113,
+                            "ex_end_line_name": 4,
+                            "ex_way_station_name": "성신여대입구",
+                            "exWalkTime": 100
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

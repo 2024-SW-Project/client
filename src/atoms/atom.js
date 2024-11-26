@@ -27,9 +27,17 @@ export const endStationState = atom({
 export const climateCardState = atom({
     key: 'climateCardState',
     default: false,
+    effects_UNSTABLE: [persistAtom],
 });
 
 export const bookmarkState = atom({
     key: 'bookmarkState',
     default: false,
+});
+
+// 경로 상세 조회 요청에 대한 Response
+export const routeResponseState = atom({
+    key: 'routeResponseState',
+    default: {},
+    effects_UNSTABLE: [persistAtom],
 });
