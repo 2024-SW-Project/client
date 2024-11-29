@@ -71,8 +71,7 @@ const SubwaySearchPage = () => {
         };
 
         try {
-            const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/subwayRoute`, postData);
-            //const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/subwayRoute`, postData);
+            const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/subway/detail/search`, postData);
             setRouteResponse(res.data[0].data);
             window.location.href = '/subway/route'
         } catch (error) {

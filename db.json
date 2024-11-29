@@ -66,5 +66,203 @@
                 }
             }
         }
+    ],
+    "subwayLive": [
+        {
+            "data": {
+                "realtimePositionList": [
+                    {
+                        "totalCount": 32,
+                        "rowNum": 1,
+                        "subwayNm": "3호선",
+                        "statnNm": "지축",
+                        "trainNo": "3164",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 3,
+                        "subwayNm": "3호선",
+                        "statnNm": "연신내",
+                        "trainNo": "3166",
+                        "updnLine": "0",
+                        "statnTnm": "구파발",
+                        "trainSttus": "2",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 4,
+                        "subwayNm": "3호선",
+                        "statnNm": "홍제",
+                        "trainNo": "3168",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "2",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 6,
+                        "subwayNm": "3호선",
+                        "statnNm": "경복궁",
+                        "trainNo": "3170",
+                        "updnLine": "0",
+                        "statnTnm": "구파발",
+                        "trainSttus": "2",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 9,
+                        "subwayNm": "3호선",
+                        "statnNm": "종로3가",
+                        "trainNo": "3172",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "2",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 10,
+                        "subwayNm": "3호선",
+                        "statnNm": "충무로",
+                        "trainNo": "3174",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 12,
+                        "subwayNm": "3호선",
+                        "statnNm": "잠원",
+                        "trainNo": "3176",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 15,
+                        "subwayNm": "3호선",
+                        "statnNm": "양재",
+                        "trainNo": "3178",
+                        "updnLine": "0",
+                        "statnTnm": "구파발",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 16,
+                        "subwayNm": "3호선",
+                        "statnNm": "학여울",
+                        "trainNo": "3180",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 18,
+                        "subwayNm": "3호선",
+                        "statnNm": "수서",
+                        "trainNo": "3182",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 25,
+                        "subwayNm": "3호선",
+                        "statnNm": "옥수",
+                        "trainNo": "3876",
+                        "updnLine": "0",
+                        "statnTnm": "구파발",
+                        "trainSttus": "2",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 27,
+                        "subwayNm": "3호선",
+                        "statnNm": "삼송",
+                        "trainNo": "3164",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "0",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 28,
+                        "subwayNm": "3호선",
+                        "statnNm": "연신내",
+                        "trainNo": "3166",
+                        "updnLine": "0",
+                        "statnTnm": "구파발",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 30,
+                        "subwayNm": "3호선",
+                        "statnNm": "대곡",
+                        "trainNo": "3160",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    },
+                    {
+                        "totalCount": 32,
+                        "rowNum": 31,
+                        "subwayNm": "3호선",
+                        "statnNm": "원당",
+                        "trainNo": "3162",
+                        "updnLine": "0",
+                        "statnTnm": "대화",
+                        "trainSttus": "1",
+                        "directAt": "0",
+                        "lstcarAt": "0"
+                    }
+                ]
+            }
+        }
+    ],
+    "check-username": [
+        {
+            "isAvailable": true
+        }
+    ],
+    "check-nickname": [
+        {
+            "isAvailable": true
+        }
     ]
 }
