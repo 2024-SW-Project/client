@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import LineDropdown from "../components/SubwayLiveComp/LineDropdown";
 import SubwayLiveMap from "../components/SubwayLiveComp/SubwayLiveMap";
+import * as StationsList from '../utils/StationsList';
+import axios from "axios"; // Axios for API requests
 
 const Container = styled.div`
     height: 100vh;
@@ -12,76 +15,6 @@ const Container = styled.div`
     min-width: 320px;
     background-color: #ffffff;
     box-sizing: border-box;
-`;
-
-const DropdownContainer = styled.div`
-    position: relative;
-    width: 90%;
-    max-width: 600px;
-    margin: 1rem 0;
-`;
-
-const Label = styled.label`
-    display: block;
-    font-size: 1rem;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    color: #333;
-`;
-
-const Dropdown = styled.div`
-    position: relative;
-    width: 100%;
-`;
-
-const DropdownButton = styled.button`
-    width: 100%;
-    height: 2.5rem;
-    padding: 0.8rem;
-    font-size: 1rem;
-    text-align: left;
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    &:hover {
-        border-color: #4d7eff;
-    }
-
-    &:focus {
-        border-color: #4d7eff;
-        outline: none;
-    }
-`;
-
-const DropdownMenu = styled.ul`
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-top: 0.5rem;
-    max-height: 200px;
-    overflow-y: auto;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-`;
-
-const DropdownItem = styled.li`
-    padding: 0.8rem;
-    font-size: 1rem;
-    cursor: pointer;
-    background-color: ${({ selected }) => (selected ? "#f0f8ff" : "#ffffff")};
-
-    &:hover {
-        background-color: #e0e0e0;
-    }
 `;
 
 const TabsContainer = styled.div`
@@ -128,7 +61,7 @@ const SubwayContainer = styled.div`
 const SubwayLivePage = () => {
     const [lineName, setLineName] = useState("1001"); // Default line: 1호선
     const [direction, setDirection] = useState(0); // Default direction: 상행
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [currentTrains, setCurrentTrains] = useState([]);
 
     const lines = [
         { code: "1001", name: "1호선" },
@@ -149,14 +82,27 @@ const SubwayLivePage = () => {
         { code: "1032", name: "GTX-A" },
     ];
 
-    const toggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
+    const fetchTrainPositions = async () => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/subway/live`, {
+                //const response = await axios.get(`api/subway/live`, {
+                params: {
+                    line_name: Number(lineName),
+                    updn_line: direction,
+                },
+            });
+
+            const trainPositions = response.data[0].data.realtimePositionList.map(train => train.statnNm);
+            setCurrentTrains(trainPositions);
+        } catch (error) {
+            console.error('Failed to fetch train positions:', error);
+        }
     };
 
-    const handleLineSelect = (code) => {
-        setLineName(code);
-        setDropdownOpen(false);
-    };
+    // Fetch positions whenever lineName or direction changes
+    useEffect(() => {
+        fetchTrainPositions();
+    }, [lineName, direction]);
 
     const handleDirectionChange = (directionValue) => {
         setDirection(directionValue);
@@ -164,28 +110,12 @@ const SubwayLivePage = () => {
 
     return (
         <Container>
-            <DropdownContainer>
-                <Label>호선</Label>
-                <Dropdown>
-                    <DropdownButton onClick={toggleDropdown}>
-                        {lines.find((line) => line.code === lineName)?.name}
-                        <span>▼</span>
-                    </DropdownButton>
-                    {dropdownOpen && (
-                        <DropdownMenu>
-                            {lines.map((line) => (
-                                <DropdownItem
-                                    key={line.code}
-                                    selected={line.code === lineName}
-                                    onClick={() => handleLineSelect(line.code)}
-                                >
-                                    {line.name}
-                                </DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                    )}
-                </Dropdown>
-            </DropdownContainer>
+            <LineDropdown
+                label="호선"
+                options={lines}
+                selectedValue={lineName}
+                onSelect={(code) => setLineName(code)} // Update selected line
+            />
             <TabsContainer>
                 <Tab
                     selected={direction === 0}
@@ -201,128 +131,25 @@ const SubwayLivePage = () => {
                 </Tab>
             </TabsContainer>
             <SubwayContainer>
-                {lineName === "1001" && direction === 0 && "1호선_상행"}
-                {lineName === "1001" && direction === 1 && "1호선_하행"}
-
-                {lineName === "1002" && direction === 0 && "2호선_상행"}
-                {lineName === "1002" && direction === 1 && "2호선_하행"}
-
-                {lineName === "1003" && direction === 0 &&
-                    <SubwayLiveMap
-                        stations={[
-                            "대화", "주엽", "정발산", "마두", "백석", "대곡", "화정", "원당", "원흥", "삼송", "지축", "구파발", "연신내",
-                            "불광", "녹번", "홍제", "무악재", "독립문", "경복궁", "안국", "종로3가", "을지로3가", "충무로", "동대입구",
-                            "약수", "금호", "옥수", "압구정", "신사", "고속터미널", "교대", "남부터미널", "양재", "매봉", "도곡", "대치",
-                            "학여울", "대청", "일원", "수서", "가락시장", "경찰병원", "오금"
-                        ]}
-                        currentTrains={["대화", "백석", "원흥", "독립문", "교대", "경찰병원"]}
-                    />}
-                {lineName === "1003" && direction === 1 && "3호선_하행"}
-
-                {lineName === "1004" && direction === 0 && "4호선_상행"}
-                {lineName === "1004" && direction === 1 && "4호선_하행"}
-
-                {lineName === "1005" && direction === 0 && "5호선_상행"}
-                {lineName === "1005" && direction === 1 && "5호선_하행"}
-
-                {lineName === "1006" && direction === 0 && "6호선_상행"}
-                {lineName === "1006" && direction === 1 && "6호선_하행"}
-
-                {lineName === "1007" && direction === 0 && "7호선_상행"}
-                {lineName === "1007" && direction === 1 && "7호선_하행"}
-
-                {lineName === "1008" && direction === 0 && "8호선_상행"}
-                {lineName === "1008" && direction === 1 && "8호선_하행"}
-
-                {lineName === "1009" && direction === 0 && "9호선_상행"}
-                {lineName === "1009" && direction === 1 && "9호선_하행"}
-
-                {lineName === "1063" && direction === 0 && "경의중앙선_상행"}
-                {lineName === "1063" && direction === 1 && "경의중앙선_하행"}
-
-                {lineName === "1065" && direction === 0 && "공항철도_상행"}
-                {lineName === "1065" && direction === 1 && "공항철도_하행"}
-
-                {lineName === "1067" && direction === 0 && "경춘선_상행"}
-                {lineName === "1067" && direction === 1 && "경춘선_하행"}
-
-                {lineName === "1075" && direction === 0 && "수인분당선_상행"}
-                {lineName === "1075" && direction === 1 && "수인분당선_하행"}
-
-                {lineName === "1077" && direction === 0 && "신분당선_상행"}
-                {lineName === "1077" && direction === 1 && "신분당선_하행"}
-
-                {lineName === "1092" && direction === 0 && "우이신설선_상행"}
-                {lineName === "1092" && direction === 1 && "우이신설선_하행"}
-
-                {lineName === "1032" && direction === 0 && "GTX-A_상행"}
-                {lineName === "1032" && direction === 1 && "GTX-A_하행"}
+                {lines.map(({ code }) => (
+                    <React.Fragment key={code}>
+                        {lineName === code && direction === 0 && (
+                            <SubwayLiveMap
+                                stations={StationsList[`Line${code}_up`]}
+                                currentTrains={currentTrains}
+                            />
+                        )}
+                        {lineName === code && direction === 1 && (
+                            <SubwayLiveMap
+                                stations={StationsList[`Line${code}_down`]}
+                                currentTrains={currentTrains}
+                            />
+                        )}
+                    </React.Fragment>
+                ))}
             </SubwayContainer>
         </Container>
     );
 };
 
 export default SubwayLivePage;
-
-
-
-
-
-
-/*
-{ lineName === "1001" && direction === 0 && "1호선_상행" }
-{ lineName === "1001" && direction === 1 && "1호선_하행" }
-
-{ lineName === "1002" && direction === 0 && "2호선_상행" }
-{ lineName === "1002" && direction === 1 && "2호선_하행" }
-
-{ lineName === "1003" && direction === 0 && "3호선_상행" }
-{ lineName === "1003" && direction === 1 && "3호선_하행" }
-
-{ lineName === "1004" && direction === 0 && "4호선_상행" }
-{ lineName === "1004" && direction === 1 && "4호선_하행" }
-
-{ lineName === "1005" && direction === 0 && "5호선_상행" }
-{ lineName === "1005" && direction === 1 && "5호선_하행" }
-
-{ lineName === "1006" && direction === 0 && "6호선_상행" }
-{ lineName === "1006" && direction === 1 && "6호선_하행" }
-
-{ lineName === "1007" && direction === 0 && "7호선_상행" }
-{ lineName === "1007" && direction === 1 && "7호선_하행" }
-
-{ lineName === "1008" && direction === 0 && "8호선_상행" }
-{ lineName === "1008" && direction === 1 && "8호선_하행" }
-
-{ lineName === "1009" && direction === 0 && "9호선_상행" }
-{ lineName === "1009" && direction === 1 && "9호선_하행" }
-
-{ lineName === "1063" && direction === 0 && "경의중앙선_상행" }
-{ lineName === "1063" && direction === 1 && "경의중앙선_하행" }
-
-{ lineName === "1065" && direction === 0 && "공항철도_상행" }
-{ lineName === "1065" && direction === 1 && "공항철도_하행" }
-
-{ lineName === "1067" && direction === 0 && "경춘선_상행" }
-{ lineName === "1067" && direction === 1 && "경춘선_하행" }
-
-{ lineName === "1075" && direction === 0 && "수인분당선_상행" }
-{ lineName === "1075" && direction === 1 && "수인분당선_하행" }
-
-{ lineName === "1077" && direction === 0 && "신분당선_상행" }
-{ lineName === "1077" && direction === 1 && "신분당선_하행" }
-
-{ lineName === "1092" && direction === 0 && "우이신설선_상행" }
-{ lineName === "1092" && direction === 1 && "우이신설선_하행" }
-
-{ lineName === "1032" && direction === 0 && "GTX-A_상행" }
-{ lineName === "1032" && direction === 1 && "GTX-A_하행" }
- */
-/*
-[
-    "대화", "주엽", "정발산", "마두", "백석", "대곡", "화정", "원당", "원흥", "삼송", "지축", "구파발", "연신내",
-    "불광", "녹번", "홍제", "무악재", "독립문", "경복궁", "안국", "종로3가", "을지로3가", "충무로", "동대입구",
-    "약수", "금호", "옥수", "압구정", "신사", "고속터미널", "교대", "남부터미널", "양재", "매봉", "도곡", "대치",
-    "학여울", "대청", "일원", "수서", "가락시장", "경찰병원", "오금"
-]
-    */

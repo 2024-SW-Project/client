@@ -46,7 +46,6 @@ const TrainIcon = styled(FaTrainSubway)`
     font-size: 1.2rem;
     position: absolute;
     z-index: 2;
-    visibility: ${({ isVisible }) => (isVisible ? "visible" : "hidden")};
 `;
 
 const StationName = styled.div`
@@ -72,7 +71,7 @@ const SubwayLiveMap = ({ stations, currentTrains }) => {
             {stations.map((station, index) => (
                 <StationContainer key={index}>
                     <Circle />
-                    <TrainIcon isVisible={currentTrains.includes(station)} />
+                    {currentTrains.includes(station) && <TrainIcon />}
                     <StationName>{station}</StationName>
                 </StationContainer>
             ))}
