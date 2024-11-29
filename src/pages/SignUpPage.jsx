@@ -256,7 +256,7 @@ const SignupPage = () => {
                 `${import.meta.env.VITE_SERVER_URL}/auth/signup/check-username`,
                 { params: { username: form.id } }
             );
-            if (response.data[0].isAvailable) {
+            if (response.data.isAvailable) {
                 setCheckStatus((prevStatus) => ({ ...prevStatus, id: "success" }));
                 setWarnings((prevWarnings) => ({
                     ...prevWarnings,
@@ -288,7 +288,7 @@ const SignupPage = () => {
                 `${import.meta.env.VITE_SERVER_URL}/auth/signup/check-nickname`,
                 { params: { nickname: form.nickname } }
             );
-            if (response.data[0].isAvailable) {
+            if (response.data.isAvailable) {
                 setCheckStatus((prevStatus) => ({ ...prevStatus, nickname: "success" }));
                 setWarnings((prevWarnings) => ({
                     ...prevWarnings,

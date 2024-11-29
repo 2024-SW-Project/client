@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { climateCardState } from "../atoms/atom";
+import axios from "axios";
 
 const Container = styled.div`
     height: 100vh;

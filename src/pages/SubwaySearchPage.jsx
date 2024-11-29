@@ -72,7 +72,8 @@ const SubwaySearchPage = () => {
 
         try {
             const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/subway/detail/search`, postData);
-            setRouteResponse(res.data[0].data);
+            console.log(res.data.data);
+            setRouteResponse(res.data.data);
             window.location.href = '/subway/route'
         } catch (error) {
             console.error('Error during POST request:', error);

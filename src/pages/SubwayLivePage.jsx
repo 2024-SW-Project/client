@@ -3,7 +3,7 @@ import styled from "styled-components";
 import LineDropdown from "../components/SubwayLiveComp/LineDropdown";
 import SubwayLiveMap from "../components/SubwayLiveComp/SubwayLiveMap";
 import * as StationsList from '../utils/StationsList';
-import axios from "axios"; // Axios for API requests
+import axios from "axios";
 
 const Container = styled.div`
     height: 100vh;
@@ -85,21 +85,20 @@ const SubwayLivePage = () => {
     const fetchTrainPositions = async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/subway/live`, {
-                //const response = await axios.get(`api/subway/live`, {
                 params: {
                     line_name: Number(lineName),
                     updn_line: direction,
                 },
             });
+            console.log(response.data.data);
 
-            const trainPositions = response.data[0].data.realtimePositionList.map(train => train.statnNm);
+            const trainPositions = response.data.data.realtimePositionList.map(train => train.statnNm);
             setCurrentTrains(trainPositions);
         } catch (error) {
             console.error('Failed to fetch train positions:', error);
         }
     };
 
-    // Fetch positions whenever lineName or direction changes
     useEffect(() => {
         fetchTrainPositions();
     }, [lineName, direction]);
