@@ -83,7 +83,7 @@ const LineDropdown = ({ label, options, selectedValue, onSelect }) => {
             <Label>{label}</Label>
             <Dropdown>
                 <DropdownButton onClick={toggleDropdown}>
-                    {options.find((option) => option.code === selectedValue)?.name || "선택"}
+                    {selectedValue || "선택"}
                     <span>▼</span>
                 </DropdownButton>
                 {dropdownOpen && (
@@ -91,9 +91,9 @@ const LineDropdown = ({ label, options, selectedValue, onSelect }) => {
                         {options.map((option) => (
                             <DropdownItem
                                 key={option.code}
-                                selected={option.code === selectedValue}
+                                selected={option.name === selectedValue}
                                 onClick={() => {
-                                    onSelect(option.code);
+                                    onSelect(option.name);
                                     setDropdownOpen(false);
                                 }}
                             >

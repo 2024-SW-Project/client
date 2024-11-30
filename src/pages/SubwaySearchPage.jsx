@@ -62,6 +62,20 @@ const SubwaySearchPage = () => {
     const hasClimateCard = useRecoilValue(climateCardState);
     const setRouteResponse = useSetRecoilState(routeResponseState);
 
+
+    const handleNullValues = (data) => {
+        if (data === null || data === undefined) {
+            return "";
+        } else if (Array.isArray(data)) {
+            return data.map(handleNullValues); // 배열인 경우 재귀적으로 처리
+        } else if (typeof data === "object") {
+            return Object.fromEntries(
+                Object.entries(data).map(([key, value]) => [key, handleNullValues(value)])
+            ); // 객체인 경우 재귀적으로 처리
+        }
+        return data; // 그 외 값은 그대로 반환
+    };
+
     // POST 요청 함수
     const postRequest = async () => {
         const postData = {
@@ -72,8 +86,12 @@ const SubwaySearchPage = () => {
 
         try {
             const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/subway/detail/search`, postData);
-            console.log(res.data.data);
-            setRouteResponse(res.data.data);
+
+            // 응답 데이터에서 null 값을 빈 문자열로 변환
+            const processedData = handleNullValues(res.data.data);
+
+            console.log(processedData); // 변환된 데이터 확인
+            setRouteResponse(processedData);
             window.location.href = '/subway/route'
         } catch (error) {
             console.error('Error during POST request:', error);
