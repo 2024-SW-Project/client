@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { sidebarState, loginState, startStationState, endStationState } from '../atoms/atom';
 import { Link } from 'react-router-dom';
-import { FaLocationDot, FaTrainSubway } from "react-icons/fa6";
+import { FaLocationDot, FaTrainSubway, FaStar } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
 
 const SidebarContainer = styled.div`
@@ -126,6 +126,12 @@ const SubwayLiveIcon = styled(FaTrainSubway)`
     margin-right: 0.5rem;
 `;
 
+// 즐겨찾기/캘린더 아이콘
+const SubwaySaveIcon = styled(FaStar)`
+    color: #4D7EFF;
+    margin-right: 0.5rem;
+`;
+
 const SideBar = () => {
     const setSidebar = useSetRecoilState(sidebarState);
     const [isLogin, setIsLogin] = useRecoilState(loginState);
@@ -167,6 +173,11 @@ const SideBar = () => {
                         <Link to="/subway/live" onClick={() => setSidebar(false)} style={{ textDecoration: 'none' }}>
                             <MenuItem>
                                 <SubwayLiveIcon />실시간위치
+                            </MenuItem>
+                        </Link>
+                        <Link to="/subway/save" onClick={() => setSidebar(false)} style={{ textDecoration: 'none' }}>
+                            <MenuItem>
+                                <SubwaySaveIcon />즐겨찾기/캘린더
                             </MenuItem>
                         </Link>
                     </MenuGroup>
