@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { FaBars } from "react-icons/fa6";
 import { useSetRecoilState } from 'recoil';
 import { sidebarState, startStationState, endStationState } from '../atoms/atom';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Container = styled.div`
     height: 50px;
@@ -69,6 +69,7 @@ const Header = () => {
     const setStartStation = useSetRecoilState(startStationState);
     const setEndStation = useSetRecoilState(endStationState);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogoClick = () => {
         // 상태 초기화
@@ -78,13 +79,40 @@ const Header = () => {
         navigate("/subway/search");
     };
 
+    // 현재 경로에 따른 메뉴 텍스트
+
+    const getMenuText = (pathname) => {
+        switch (pathname) {
+            case '/auth/login':
+                return '로그인';
+            case '/auth/signup':
+                return '회원가입';
+            case '/auth/find-id':
+                return '아이디찾기';
+            case '/auth/reset-password':
+                return '비밀번호 재설정';
+            case '/mypage':
+                return '마이페이지';
+            case '/subway/search':
+                return '경로조회';
+            case '/subway/live':
+                return '지하철 실시간위치';
+            case '/subway/route':
+                return '상세경로조회';
+            case '/subway/save':
+                return '즐겨찾기/캘린더';
+            default:
+                return '';
+        }
+    };
+
     return (
         <Container>
             {/* 로고 이미지와 메뉴 텍스트 */}
             <LeftSection>
                 <LogoImg src="/logo1.png" alt="logo" onClick={handleLogoClick} />
                 <Divider />
-                <MenuText>경로 찾기</MenuText>
+                <MenuText>{getMenuText(location.pathname)}</MenuText>
             </LeftSection>
             {/* 오른쪽 메뉴 버튼 */}
             <MenuButton onClick={() => setSidebar(true)}>
