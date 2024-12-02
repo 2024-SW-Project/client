@@ -165,8 +165,8 @@ const SignupPage = () => {
 
         switch (field) {
             case "id":
-                if (!/^[a-z0-9_]{5,20}$/.test(value)) {
-                    warningMessage = "5~20자의 영문소문자, 숫자, 특수문자'_' 만 사용해주세요.";
+                if (!/^[A-Za-z0-9_]{5,20}$/.test(value)) {
+                    warningMessage = "5~20자의 영문대소문자, 숫자, 특수문자'_' 만 사용해주세요.";
                 }
                 break;
             case "email":
@@ -213,7 +213,9 @@ const SignupPage = () => {
 
     const isFormValid = () => {
         return (
-            !Object.values(warnings).some((warning) => warning) && // 경고 메시지가 없어야 함
+            !Object.entries(warnings)
+                .filter(([key]) => key !== "apiError") // `apiError` 무시
+                .some(([, warning]) => warning) && // 다른 경고 메시지가 없어야 함
             Object.values(form).every((value) => value) && // 모든 필드가 입력되었는지 확인
             climateCard !== null && // 기후동행카드 여부 선택
             checkStatus.id === "success" && // 아이디 중복체크 성공
@@ -317,14 +319,14 @@ const SignupPage = () => {
                 isClimateCardEligible: climateCard,
             };
 
+            console.log(postData);
+
             const response = await axios.post(
                 `${import.meta.env.VITE_SERVER_URL}/auth/signup`,
                 postData
             );
 
-            // 회원가입 성공 시 user_id 저장
-            const userId = response.data.user_id; // API response에서 user_id 추출
-            localStorage.setItem("user_id", userId); // localStorage에 user_id 저장
+            console.log(response);
 
             alert("회원가입 성공!");
             navigate("/subway/search");
@@ -419,14 +421,14 @@ const SignupPage = () => {
                 <ClimateCardContainer>
                     <Label>기후동행카드 소지 여부</Label>
                     <OptionButton
-                        selected={climateCard === "O"}
-                        onClick={() => handleClimateCardSelection("O")}
+                        selected={climateCard === true}
+                        onClick={() => handleClimateCardSelection(true)}
                     >
                         O
                     </OptionButton>
                     <OptionButton
-                        selected={climateCard === "X"}
-                        onClick={() => handleClimateCardSelection("X")}
+                        selected={climateCard === false}
+                        onClick={() => handleClimateCardSelection(false)}
                     >
                         X
                     </OptionButton>
