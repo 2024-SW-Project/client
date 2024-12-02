@@ -15,19 +15,16 @@ const Container = styled.div`
     box-sizing: border-box;
 `;
 
-// 인풋창 내부의 아이콘(출발아이콘)
 const StartIcon = styled(FaLocationArrow)`
     color: #4A6CF7;
     margin-right: 0.5rem;
 `;
 
-// 인풋창 내부의 아이콘(도착아이콘)
 const ArrivedIcon = styled(FaFlag)`
     color: #4A6CF7;
     margin-right: 0.5rem;
 `;
 
-// 인풋창
 const Input = styled.input`
     border: none;
     outline: none;
@@ -68,6 +65,7 @@ const DropdownItem = styled.li`
 const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
     const [suggestions, setSuggestions] = useState([]);
     const containerRef = useRef(null);
+    const isSelecting = useRef(false); // 드롭다운 선택 상태를 추적
 
     const handleInputChange = async (e) => {
         const inputValue = e.target.value;
@@ -96,12 +94,19 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
     };
 
     const handleSelect = (stationName) => {
+        isSelecting.current = true; // 드롭다운에서 값 선택
         onChange(stationName);
         setSuggestions([]);
         onConfirm(); // 값 확정 시 호출
     };
 
     const handleBlur = () => {
+        // 드롭다운에서 선택 중일 경우 초기화 방지
+        if (isSelecting.current) {
+            isSelecting.current = false; // 선택 상태 초기화
+            return;
+        }
+
         if (!suggestions.includes(value)) {
             onChange(""); // 입력값 초기화
         }
@@ -120,7 +125,7 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
             {suggestions.length > 0 && (
                 <Dropdown>
                     {suggestions.map((station, index) => (
-                        <DropdownItem key={index} onClick={() => handleSelect(station)}>
+                        <DropdownItem key={index} onMouseDown={() => handleSelect(station)}>
                             {station}
                         </DropdownItem>
                     ))}
@@ -129,5 +134,6 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
         </Container>
     );
 };
+
 
 export default InputStation;
