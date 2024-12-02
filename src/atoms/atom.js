@@ -8,9 +8,14 @@ export const sidebarState = atom({
     default: false,
 });
 
-export const loginState = atom({
-    key: 'loginState',
-    default: false,
+export const userInfoState = atom({
+    key: 'userInfoState',
+    default: {
+        isLogIn: false,
+        nickname: "",
+        profile_picture: "",
+        user_id: null
+    },
     effects_UNSTABLE: [persistAtom],
 });
 
