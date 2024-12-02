@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef } from "react";
+import styled from "styled-components";
 
 const Container = styled.div`
     display: flex;
@@ -51,9 +51,28 @@ const Button = styled.button`
     }
 `;
 
-const LocationPicker = ({ x, y, onStartClick, onEndClick }) => {
+const LocationPicker = ({ x, y, onStartClick, onEndClick, onClose }) => {
+    const pickerRef = useRef(null);
+
+    useEffect(() => {
+        // 외부 클릭을 감지하는 핸들러
+        const handleClickOutside = (event) => {
+            if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+                onClose(); // 외부 클릭 시 LocationPicker 닫기
+            }
+        };
+
+        // 이벤트 리스너 등록
+        document.addEventListener("mousedown", handleClickOutside);
+
+        return () => {
+            // 컴포넌트가 사라질 때 이벤트 리스너 제거
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [onClose]);
+
     return (
-        <Container x={x} y={y}>
+        <Container ref={pickerRef} x={x} y={y}>
             <Button onClick={onStartClick}>출발</Button>
             <Divider />
             <Button onClick={onEndClick}>도착</Button>
