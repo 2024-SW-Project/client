@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { sidebarState, loginState, startStationState, endStationState } from '../atoms/atom';
+import { sidebarState, startStationState, endStationState, userInfoState } from '../atoms/atom';
 import { Link } from 'react-router-dom';
 import { FaLocationDot, FaTrainSubway, FaStar } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const SidebarContainer = styled.div`
     position: fixed;
@@ -134,9 +135,9 @@ const SubwaySaveIcon = styled(FaStar)`
 
 const SideBar = () => {
     const setSidebar = useSetRecoilState(sidebarState);
-    const [isLogin, setIsLogin] = useRecoilState(loginState);
     const setStartStation = useSetRecoilState(startStationState);
     const setEndStation = useSetRecoilState(endStationState);
+    const [userInfo, setUserInfo] = useRecoilState(userInfoState);
     const navigate = useNavigate();
 
     const handleRouteSearchClick = () => {
@@ -154,12 +155,12 @@ const SideBar = () => {
             <Overlay onClick={() => setSidebar(false)} />
 
             {/* 로그인 여부에 따른 사이드바 내용 */}
-            {isLogin ? (
+            {userInfo.isLogIn ? (
                 <SidebarContainer>
                     {/* 로그인 상태: 프로필 사진과 이름 */}
                     <LoginPrompt to="/mypage" onClick={() => setSidebar(false)}>
                         <ProfileImage src="/karina.png" alt="Profile" />
-                        카리나
+                        {userInfo.nickname}
                     </LoginPrompt>
 
                     <Divider />
@@ -185,7 +186,24 @@ const SideBar = () => {
                     <Divider />
 
                     {/* 로그아웃 버튼 */}
-                    <LoginSignupText onClick={() => { setIsLogin(false); setSidebar(false); }}>
+                    <LoginSignupText onClick={() => {
+                        // 로컬 스토리지 및 Axios 헤더 초기화
+                        localStorage.removeItem("accessToken");
+                        axios.defaults.headers.common["Authorization"] = "";
+
+                        // Recoil 상태 초기화
+                        setUserInfo((prev) => ({
+                            ...prev,
+                            isLogIn: false,
+                            nickname: "",
+                            profile_picture: "",
+                            user_id: null,
+                        }));
+
+                        // 사이드바 닫기 및 로그인 페이지로 리다이렉트
+                        setSidebar(false);
+                        navigate("/subway/search");
+                    }}>
                         로그아웃
                     </LoginSignupText>
 
@@ -218,9 +236,13 @@ const SideBar = () => {
 
                     {/* 로그인 버튼 */}
                     <LoginSignupContainer>
-                        <LoginSignupText onClick={() => { setIsLogin(true); setSidebar(false); }}>
-                            로그인
-                        </LoginSignupText>
+                        <Link to="/auth/login" onClick={() => setSidebar(false)}>
+                            <LoginSignupText onClick={() => {
+                                setSidebar(false);
+                            }}>
+                                로그인
+                            </LoginSignupText>
+                        </Link>
                         <Link to="/auth/signup" onClick={() => setSidebar(false)}>
                             <LoginSignupText onClick={() => { setSidebar(false); }}>
                                 회원가입
