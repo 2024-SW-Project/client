@@ -30,7 +30,7 @@ const Map = () => {
     const [startStation, setStartStation] = useRecoilState(startStationState);
     const [endStation, setEndStation] = useRecoilState(endStationState);
     const [pickerPosition, setPickerPosition] = useState({ x: 0, y: 0, stationName: '', visible: false });
-
+    
     useEffect(() => {
         const objectElement = svgRef.current;
 
@@ -213,8 +213,14 @@ const Map = () => {
                         setEndStation(pickerPosition.stationName);
                         setPickerPosition({ ...pickerPosition, visible: false });
                     }}
+                    onClose={() => {
+                        // LocationPicker 외부를 클릭하면 닫기
+                        setPickerPosition({ ...pickerPosition, visible: false });
+                    }}
                 />
             )}
+
+
         </StyledMapContainer>
     );
 };
