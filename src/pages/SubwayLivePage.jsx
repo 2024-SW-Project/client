@@ -59,7 +59,7 @@ const SubwayContainer = styled.div`
 `;
 
 const SubwayLivePage = () => {
-    const [lineName, setLineName] = useState("1001"); // Default line: 1호선
+    const [lineName, setLineName] = useState("1호선"); // Default line: 1호선
     const [direction, setDirection] = useState(0); // Default direction: 상행
     const [currentTrains, setCurrentTrains] = useState([]);
 
@@ -86,11 +86,11 @@ const SubwayLivePage = () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/subway/live`, {
                 params: {
-                    line_name: Number(lineName),
+                    line_name: lineName,
                     updn_line: direction,
                 },
             });
-            console.log(response.data.data);
+            console.log(response.data.data.realtimePositionList);
 
             const trainPositions = response.data.data.realtimePositionList.map(train => train.statnNm);
             setCurrentTrains(trainPositions);
@@ -113,7 +113,7 @@ const SubwayLivePage = () => {
                 label="호선"
                 options={lines}
                 selectedValue={lineName}
-                onSelect={(code) => setLineName(code)} // Update selected line
+                onSelect={(name) => setLineName(name)}
             />
             <TabsContainer>
                 <Tab
@@ -132,13 +132,13 @@ const SubwayLivePage = () => {
             <SubwayContainer>
                 {lines.map(({ code }) => (
                     <React.Fragment key={code}>
-                        {lineName === code && direction === 0 && (
+                        {lines.find(line => line.name === lineName)?.code === code && direction === 0 && (
                             <SubwayLiveMap
                                 stations={StationsList[`Line${code}_up`]}
                                 currentTrains={currentTrains}
                             />
                         )}
-                        {lineName === code && direction === 1 && (
+                        {lines.find(line => line.name === lineName)?.code === code && direction === 1 && (
                             <SubwayLiveMap
                                 stations={StationsList[`Line${code}_down`]}
                                 currentTrains={currentTrains}
