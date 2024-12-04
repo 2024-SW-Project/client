@@ -14,7 +14,8 @@ export const userInfoState = atom({
         isLogIn: false,
         nickname: "",
         profile_picture: "",
-        user_id: null
+        user_id: null,
+        is_climate_card_eligible: true
     },
     effects_UNSTABLE: [persistAtom],
 });
@@ -43,6 +44,20 @@ export const bookmarkState = atom({
 // 경로 상세 조회 요청에 대한 Response
 export const routeResponseState = atom({
     key: 'routeResponseState',
+    default: {},
+    effects_UNSTABLE: [persistAtom],
+});
+
+// 아이디 찾기 요청에 대한 Response
+export const findIdResponseState = atom({
+    key: 'findIdResponseState',
+    default: {},
+    effects_UNSTABLE: [persistAtom],
+});
+
+// 비밀번호 재설정 요청에 대한 Response
+export const resetPwResponseState = atom({
+    key: 'resetPwResponseState',
     default: {},
     effects_UNSTABLE: [persistAtom],
 });
