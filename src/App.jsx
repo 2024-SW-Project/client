@@ -17,6 +17,9 @@ import SignUpPage from './pages/SignUpPage';
 import FindIdPage from './pages/FindIdPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import SubwaySavePage from './pages/SubwaySavePage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
+import FindIdResultPage from './pages/FindIdResultPage';
+import ResetPasswordResultPage from './pages/ResetPasswordResultPage';
 
 const RootLayout = () => {
   const isSidebarOpen = useRecoilValue(sidebarState);
@@ -49,12 +52,24 @@ const router = createBrowserRouter([
         element: <FindIdPage />
       },
       {
+        path: '/auth/find-id/result',
+        element: <FindIdResultPage />
+      },
+      {
         path: '/auth/reset-password',
         element: <ResetPasswordPage />
       },
       {
+        path: '/auth/reset-password/result',
+        element: <ResetPasswordResultPage />
+      },
+      {
         path: '/mypage',
         element: <MyPage />
+      },
+      {
+        path: '/mypage/change-password',
+        element: <ChangePasswordPage />
       },
       {
         path: '/subway/search',
