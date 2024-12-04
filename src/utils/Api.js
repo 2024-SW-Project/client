@@ -60,3 +60,39 @@ export const apiCall = async (method, endpoint, data = null) => {
         }
     }
 };
+
+export const logoutUser = async (setUserInfo, setSidebar = null, navigate) => {
+    try {
+        // /auth/logout API 요청
+        const response = await apiCall("post", `${import.meta.env.VITE_SERVER_URL}/auth/logout`);
+        if (response.status === 200) {
+            console.log("로그아웃 성공");
+
+            // 로컬 스토리지 및 Axios 헤더 초기화
+            localStorage.removeItem("accessToken");
+            axios.defaults.headers.common["Authorization"] = "";
+
+            // Recoil 상태 초기화
+            setUserInfo((prev) => ({
+                ...prev,
+                isLogIn: false,
+                nickname: "",
+                profile_picture: "",
+                user_id: null,
+            }));
+
+            alert("로그아웃되었습니다.");
+
+            // 사이드바 닫기 (setSidebar가 전달된 경우에만 실행)
+            if (setSidebar) {
+                setSidebar(false);
+            }
+
+            // 로그인 페이지로 리다이렉트
+            navigate("/subway/search");
+        }
+    } catch (error) {
+        console.error("로그아웃 요청 실패:", error);
+        alert("로그아웃에 실패했습니다. 다시 시도해주세요.");
+    }
+};
