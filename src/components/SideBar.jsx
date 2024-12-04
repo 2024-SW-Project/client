@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { FaLocationDot, FaTrainSubway, FaStar } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { logoutUser } from '../utils/Api';
 
 const SidebarContainer = styled.div`
     position: fixed;
@@ -185,25 +186,13 @@ const SideBar = () => {
 
                     <Divider />
 
+
                     {/* 로그아웃 버튼 */}
-                    <LoginSignupText onClick={() => {
-                        // 로컬 스토리지 및 Axios 헤더 초기화
-                        localStorage.removeItem("accessToken");
-                        axios.defaults.headers.common["Authorization"] = "";
-
-                        // Recoil 상태 초기화
-                        setUserInfo((prev) => ({
-                            ...prev,
-                            isLogIn: false,
-                            nickname: "",
-                            profile_picture: "",
-                            user_id: null,
-                        }));
-
-                        // 사이드바 닫기 및 로그인 페이지로 리다이렉트
-                        setSidebar(false);
-                        navigate("/subway/search");
-                    }}>
+                    <LoginSignupText
+                        onClick={async () => {
+                            await logoutUser(setUserInfo, setSidebar, navigate);
+                        }}
+                    >
                         로그아웃
                     </LoginSignupText>
 
