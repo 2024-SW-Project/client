@@ -89,10 +89,16 @@ const Header = () => {
                 return '회원가입';
             case '/auth/find-id':
                 return '아이디찾기';
+            case '/auth/find-id/result':
+                return '아이디찾기2';
             case '/auth/reset-password':
                 return '비밀번호 재설정';
+            case '/auth/reset-password/result':
+                return '비밀번호 재설정2';
             case '/mypage':
                 return '마이페이지';
+            case '/mypage/change-password':
+                return '비밀번호 변경';
             case '/subway/search':
                 return '경로조회';
             case '/subway/live':
