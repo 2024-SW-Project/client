@@ -69,7 +69,7 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
 
     const handleInputChange = async (e) => {
         const inputValue = e.target.value;
-        onChange(inputValue);
+        onChange(inputValue, false); // 값을 변경하되 확정되지 않음
 
         if (inputValue.trim() === "") {
             setSuggestions([]);
@@ -95,7 +95,7 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
 
     const handleSelect = (stationName) => {
         isSelecting.current = true; // 드롭다운에서 값 선택
-        onChange(stationName);
+        onChange(stationName, true); // 값을 확정
         setSuggestions([]);
         onConfirm(); // 값 확정 시 호출
     };
@@ -108,7 +108,7 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
         }
 
         if (!suggestions.includes(value)) {
-            onChange(""); // 입력값 초기화
+            onChange("", false); // 입력값 초기화
         }
         setSuggestions([]);
     };
@@ -134,6 +134,5 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
         </Container>
     );
 };
-
 
 export default InputStation;

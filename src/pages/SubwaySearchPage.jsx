@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Map from '../components/SubwaySearchComp/Map';
 import InputStation from '../components/SubwaySearchComp/InputStation';
@@ -59,24 +59,11 @@ const ToggleWrapperContainer = styled.div`
 const SubwaySearchPage = () => {
     const [startStation, setStartStation] = useRecoilState(startStationState);
     const [endStation, setEndStation] = useRecoilState(endStationState);
+    const [isStartStationConfirmed, setIsStartStationConfirmed] = useState(false);
+    const [isEndStationConfirmed, setIsEndStationConfirmed] = useState(false);
     const hasClimateCard = useRecoilValue(climateCardState);
     const setRouteResponse = useSetRecoilState(routeResponseState);
 
-
-    const handleNullValues = (data) => {
-        if (data === null || data === undefined) {
-            return "";
-        } else if (Array.isArray(data)) {
-            return data.map(handleNullValues); // 배열인 경우 재귀적으로 처리
-        } else if (typeof data === "object") {
-            return Object.fromEntries(
-                Object.entries(data).map(([key, value]) => [key, handleNullValues(value)])
-            ); // 객체인 경우 재귀적으로 처리
-        }
-        return data; // 그 외 값은 그대로 반환
-    };
-
-    // POST 요청 함수
     const postRequest = async () => {
         const postData = {
             start_station_name: startStation,
@@ -86,52 +73,52 @@ const SubwaySearchPage = () => {
 
         try {
             const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/subway/detail/search`, postData);
-
-            // 응답 데이터에서 null 값을 빈 문자열로 변환
-            const processedData = handleNullValues(res.data.data);
-
-            console.log(processedData); // 변환된 데이터 확인
+            const processedData = res.data.data || {};
             setRouteResponse(processedData);
-            window.location.href = '/subway/route'
+            window.location.href = '/subway/route';
         } catch (error) {
-            console.error('Error during POST request:', error);
+            console.error("Error during POST request:", error);
         }
     };
 
-    // 조건에 따라 POST 요청 보내기
     useEffect(() => {
-        if (startStation !== "" && endStation !== "") {
+        if (isStartStationConfirmed && isEndStationConfirmed) {
             postRequest();
         }
-    }, [startStation, endStation]);
+    }, [isStartStationConfirmed, isEndStationConfirmed]); // 상태 변화 감지 후 요청
 
-    // 출발역 입력 값 변경
-    const handleStartChange = (newValue) => {
-        console.log("Start station:", newValue);
+    const handleStartChange = (newValue, isConfirmed) => {
         setStartStation(newValue);
+        setIsStartStationConfirmed(isConfirmed); // 값을 확정했는지 상태 업데이트
     };
 
-    // 도착역 입력 값 변경
-    const handleEndChange = (newValue) => {
-        console.log("End station:", newValue);
+    const handleEndChange = (newValue, isConfirmed) => {
         setEndStation(newValue);
+        setIsEndStationConfirmed(isConfirmed); // 값을 확정했는지 상태 업데이트
     };
 
     return (
         <Container>
-            {/* 출발역과 도착역 입력 필드 */}
             <InputContainer>
-                <InputStation placeholder="출발역" value={startStation} onChange={handleStartChange} />
+                <InputStation
+                    placeholder="출발역"
+                    value={startStation}
+                    onChange={handleStartChange}
+                    onConfirm={() => setIsStartStationConfirmed(true)} // 확정 시 상태 업데이트
+                />
                 <DividerIcon />
-                <InputStation placeholder="도착역" value={endStation} onChange={handleEndChange} />
+                <InputStation
+                    placeholder="도착역"
+                    value={endStation}
+                    onChange={handleEndChange}
+                    onConfirm={() => setIsEndStationConfirmed(true)} // 확정 시 상태 업데이트
+                />
             </InputContainer>
-            {/* 지도 컴포넌트 */}
             <MapContainer>
-                {/* Toggle Switch를 Map의 상단 좌측에 배치 */}
                 <ToggleWrapperContainer>
                     <SwitchToggle />
                 </ToggleWrapperContainer>
-                <Map style={{ width: '100%', height: '100%' }} />
+                <Map style={{ width: "100%", height: "100%" }} />
             </MapContainer>
         </Container>
     );

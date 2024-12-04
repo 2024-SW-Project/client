@@ -113,7 +113,7 @@ const SubwayRoutePage = () => {
             "에버라인": "#F5A200",
             "의정부경전철": "#FDA600",
             "김포골드라인": "#986DB2",
-        };        
+        };
 
         return lineColors[lineNumber] || '#333';
     };
@@ -144,7 +144,7 @@ const SubwayRoutePage = () => {
             "에버라인": "에버라인",
             "의정부경전철": "의정부경전철",
             "김포골드라인": "김포골드라인",
-        };        
+        };
 
         return lineNumber[lineNumberText] || '#333';
     };
@@ -203,9 +203,7 @@ const SubwayRoutePage = () => {
                     {/* TransferInfo 컴포넌트: 마지막 역은 제외 */}
                     {index < routeResponse.onStationSet.station.length - 1 && (
                         <TransferInfo
-                            walkTime={convertSecondsToMinutes(
-                                routeResponse.exChangeInfoSet.exChangeInfo[index]?.exWalkTime || 0
-                            )}
+                            walkTime={routeResponse.exChangeInfoSet.exChangeInfo[index]?.exWalkTime || 2}
                         />
                     )}
                 </React.Fragment>
