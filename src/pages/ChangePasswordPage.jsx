@@ -124,7 +124,8 @@ const ChangePasswordPage = () => {
                 {
                     current_password: form.current_password,
                     new_password: form.new_password,
-                }
+                },
+                setUserInfo
             );
 
             // API 응답 확인

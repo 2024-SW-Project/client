@@ -131,12 +131,13 @@ const LoginPage = () => {
                 if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
                     const accessToken = authorizationHeader.split(" ")[1];
                     localStorage.setItem("accessToken", accessToken);
+                    localStorage.setItem("refreshToken", response.headers["refresh-token"]);
                     axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
                     setUserInfo({
                         isLogIn: true,
-                        nickname: response.data.user_info.nickname,
-                        profile_picture: response.data.user_info.profile_picture,
-                        user_id: response.data.user_info.user_id,
+                        nickname: response.data.nickname,
+                        profile_picture: response.data.profile_picture,
+                        user_id: response.data.user_id,
                     });
                     alert("로그인 성공!");
                     navigate("/subway/search");
@@ -173,7 +174,7 @@ const LoginPage = () => {
                     />
                 </InputContainer>
                 {warning && <WarningText>{warning}</WarningText>}
-                <SubmitButton onClick={handleLogin}>로그인</SubmitButton>
+                <SubmitButton onClick={() => handleLogin(setUserInfo)}>로그인</SubmitButton>
                 <LinkContainer>
                     <LinkText href="/auth/signup">회원가입</LinkText>
                     <span style={{ color: "#efefef" }}>|</span>
