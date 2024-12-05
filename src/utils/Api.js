@@ -1,10 +1,19 @@
 import axios from "axios";
 
-export const refreshAccessToken = async () => {
+export const refreshAccessToken = async (setUserInfo) => {
+    const refresh = localStorage.getItem("refreshToken"); // localStorage에서 가져오기
     try {
-        const response = await axios.get(
-            `${import.meta.env.VITE_SERVER_URL}/auth/refresh-token`
+        const response = await axios.post(
+            `${import.meta.env.VITE_SERVER_URL}/auth/refresh-token`,
+            {},
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Refresh-Token": refresh, // 항상 localStorage에서 가져온 토큰 사용
+                },
+            }
         );
+
         if (response.status === 200) {
             const authorizationHeader = response.headers.authorization;
             if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
@@ -19,6 +28,24 @@ export const refreshAccessToken = async () => {
             }
         } else {
             console.log("Refresh Token이 만료되었거나 유효하지 않음");
+
+            // 로컬 스토리지 및 Axios 헤더 초기화
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            axios.defaults.headers.common["Authorization"] = "";
+
+            // Recoil 상태 초기화
+            if (setUserInfo) {
+                setUserInfo((prev) => ({
+                    ...prev,
+                    isLogIn: false,
+                    nickname: "",
+                    profile_picture: "",
+                    user_id: null,
+                }));
+            }
+
+            window.location.href = "/auth/login";
             return false;
         }
     } catch (error) {
@@ -27,8 +54,7 @@ export const refreshAccessToken = async () => {
     }
 };
 
-
-export const apiCall = async (method, endpoint, data = null) => {
+export const apiCall = async (method, endpoint, data = null, setUserInfo = null) => {
     try {
         const accessToken = localStorage.getItem("accessToken"); // localStorage에서 가져오기
         const response = await axios({
@@ -46,9 +72,9 @@ export const apiCall = async (method, endpoint, data = null) => {
     } catch (error) {
         if (error.response && error.response.status === 401) {
             console.log("Access Token이 만료됨, 갱신 시도");
-            const isRefreshed = await refreshAccessToken();
+            const isRefreshed = await refreshAccessToken(setUserInfo);
             if (isRefreshed) {
-                const retryResponse = await apiCall(method, endpoint, data); // 재귀 호출로 요청 재시도
+                const retryResponse = await apiCall(method, endpoint, data, setUserInfo); // 재귀 호출로 요청 재시도
                 return retryResponse;
             } else {
                 console.log("로그인 필요");
@@ -70,6 +96,7 @@ export const logoutUser = async (setUserInfo, setSidebar = null, navigate) => {
 
             // 로컬 스토리지 및 Axios 헤더 초기화
             localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
             axios.defaults.headers.common["Authorization"] = "";
 
             // Recoil 상태 초기화
