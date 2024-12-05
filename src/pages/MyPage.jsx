@@ -343,7 +343,8 @@ const MyPage = () => {
                 const response = await apiCall(
                     "delete",
                     `${import.meta.env.VITE_SERVER_URL}/mypage/delete`,
-                    { password }
+                    { password },
+                    setUserInfoRecoil
                 );
 
                 if (response.data.message === "Account and related data deleted successfully") {
@@ -507,13 +508,6 @@ const MyPage = () => {
                             <EditButton onClick={() => handleEditClick("isClimateCardEligible")}>
                                 <FaPen />
                             </EditButton>
-                            {/* <ReadOnlyText>
-                                {userInfo.isClimateCardEligible ? "O" : "X"}
-
-                            </ReadOnlyText>
-                            <EditButton onClick={() => handleEditClick("isClimateCardEligible")}>
-                                <FaPen />
-                            </EditButton> */}
                         </ClimateCardStatus>
                     )}
                 </FieldContainer>
