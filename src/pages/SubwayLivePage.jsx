@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import LineDropdown from "../components/SubwayLiveComp/LineDropdown";
 import SubwayLiveMap from "../components/SubwayLiveComp/SubwayLiveMap";
-import * as StationsList from '../utils/StationsList';
-import axios from "axios"; // Axios for API requests
+import * as StationsList from "../utils/StationsList";
+import axios from "axios";
 
 const Container = styled.div`
     height: 100vh;
@@ -58,10 +58,34 @@ const SubwayContainer = styled.div`
     overflow-y: scroll;
 `;
 
+const DirectionMenu = styled.div`
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+`;
+
+const MenuButton = styled.button`
+    flex: 1;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    color: ${({ selected }) => (selected ? "#fff" : "#4d7eff")};
+    background-color: ${({ selected }) => (selected ? "#4d7eff" : "#ffffff")};
+    border: 2px solid #4d7eff;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: ${({ selected }) => (selected ? "#4d7eff" : "#f0f0f0")};
+    }
+`;
+
 const SubwayLivePage = () => {
-    const [lineName, setLineName] = useState("1001"); // Default line: 1호선
+    const [lineName, setLineName] = useState("1호선"); // Default line: 1호선
     const [direction, setDirection] = useState(0); // Default direction: 상행
     const [currentTrains, setCurrentTrains] = useState([]);
+    const [selectedMenu, setSelectedMenu] = useState(1); // Default menu value
 
     const lines = [
         { code: "1001", name: "1호선" },
@@ -82,24 +106,30 @@ const SubwayLivePage = () => {
         { code: "1032", name: "GTX-A" },
     ];
 
+    const menuMapping = {
+        "1호선": ["신도림-연천", "인천-구로", "광명-구로", "서동탄-구로", "신창-구로"],
+        "2호선": ["순환선", "신도림-까치산", "신설동-성수"],
+        "5호선": ["방화-하남검단산", "방화-마천"],
+        "경의중앙선": ["문산-지평", "문산-서울역"],
+        "경춘선": ["광운대-춘천", "청량리-춘천"],
+    };
+
     const fetchTrainPositions = async () => {
         try {
             const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/subway/live`, {
-                //const response = await axios.get(`api/subway/live`, {
                 params: {
-                    line_name: Number(lineName),
+                    line_name: lineName,
                     updn_line: direction,
                 },
             });
 
-            const trainPositions = response.data[0].data.realtimePositionList.map(train => train.statnNm);
+            const trainPositions = response.data.data.simpleData.map((train) => train.statnNm);
             setCurrentTrains(trainPositions);
         } catch (error) {
-            console.error('Failed to fetch train positions:', error);
+            console.error("Failed to fetch train positions:", error);
         }
     };
 
-    // Fetch positions whenever lineName or direction changes
     useEffect(() => {
         fetchTrainPositions();
     }, [lineName, direction]);
@@ -108,14 +138,33 @@ const SubwayLivePage = () => {
         setDirection(directionValue);
     };
 
+    const handleMenuChange = (menuValue) => {
+        setSelectedMenu(menuValue);
+    };
+
+    const lineCode = lines.find((line) => line.name === lineName)?.code;
+
     return (
         <Container>
             <LineDropdown
                 label="호선"
                 options={lines}
                 selectedValue={lineName}
-                onSelect={(code) => setLineName(code)} // Update selected line
+                onSelect={(name) => setLineName(name)}
             />
+            {menuMapping[lineName] && (
+                <DirectionMenu>
+                    {menuMapping[lineName].map((menu, index) => (
+                        <MenuButton
+                            key={index}
+                            selected={selectedMenu === index + 1}
+                            onClick={() => handleMenuChange(index + 1)}
+                        >
+                            {menu}
+                        </MenuButton>
+                    ))}
+                </DirectionMenu>
+            )}
             <TabsContainer>
                 <Tab
                     selected={direction === 0}
@@ -133,15 +182,23 @@ const SubwayLivePage = () => {
             <SubwayContainer>
                 {lines.map(({ code }) => (
                     <React.Fragment key={code}>
-                        {lineName === code && direction === 0 && (
+                        {lineCode === code && direction === 0 && (
                             <SubwayLiveMap
-                                stations={StationsList[`Line${code}_up`]}
+                                stations={
+                                    menuMapping[lineName]
+                                        ? StationsList[`Line${code}_up_${selectedMenu}`]
+                                        : StationsList[`Line${code}_up`]
+                                }
                                 currentTrains={currentTrains}
                             />
                         )}
-                        {lineName === code && direction === 1 && (
+                        {lineCode === code && direction === 1 && (
                             <SubwayLiveMap
-                                stations={StationsList[`Line${code}_down`]}
+                                stations={
+                                    menuMapping[lineName]
+                                        ? StationsList[`Line${code}_down_${selectedMenu}`]
+                                        : StationsList[`Line${code}_down`]
+                                }
                                 currentTrains={currentTrains}
                             />
                         )}

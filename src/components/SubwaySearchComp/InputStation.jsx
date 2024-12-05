@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { FaLocationArrow } from "react-icons/fa6";
 import { FaFlag } from "react-icons/fa6";
+import axios from "axios";
 
 const Container = styled.div`
+    position: relative;
     display: flex;
     align-items: center;
     border: 1px solid #C0C0C0;
@@ -13,42 +15,122 @@ const Container = styled.div`
     box-sizing: border-box;
 `;
 
-// 인풋창 내부의 아이콘(출발아이콘)
 const StartIcon = styled(FaLocationArrow)`
     color: #4A6CF7;
     margin-right: 0.5rem;
 `;
 
-// 인풋창 내부의 아이콘(도착아이콘)
 const ArrivedIcon = styled(FaFlag)`
     color: #4A6CF7;
     margin-right: 0.5rem;
 `;
 
-// 인풋창
 const Input = styled.input`
     border: none;
     outline: none;
     font-size: 14px;
     color: #666271;
     width: 100%;
-    
+
     &::placeholder {
         color: #C0C0C0;
     }
 `;
 
-const InputStation = ({ placeholder, value, onChange }) => {
+const Dropdown = styled.ul`
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    overflow-y: auto;
+    z-index: 100;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+`;
+
+const DropdownItem = styled.li`
+    padding: 0.5rem;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #f1f1f1;
+    }
+`;
+
+const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
+    const [suggestions, setSuggestions] = useState([]);
+    const containerRef = useRef(null);
+    const isSelecting = useRef(false); // 드롭다운 선택 상태를 추적
+
+    const handleInputChange = async (e) => {
+        const inputValue = e.target.value;
+        onChange(inputValue, false); // 값을 변경하되 확정되지 않음
+
+        if (inputValue.trim() === "") {
+            setSuggestions([]);
+            return;
+        }
+
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_SERVER_URL}/subway/search/autocomplete`,
+                { params: { query: inputValue } }
+            );
+
+            if (response.status === 200 && response.data.data.stations) {
+                setSuggestions(response.data.data.stations);
+            } else {
+                setSuggestions([]);
+            }
+        } catch (error) {
+            console.error("자동완성 API 요청 에러:", error);
+            setSuggestions([]);
+        }
+    };
+
+    const handleSelect = (stationName) => {
+        isSelecting.current = true; // 드롭다운에서 값 선택
+        onChange(stationName, true); // 값을 확정
+        setSuggestions([]);
+        onConfirm(); // 값 확정 시 호출
+    };
+
+    const handleBlur = () => {
+        // 드롭다운에서 선택 중일 경우 초기화 방지
+        if (isSelecting.current) {
+            isSelecting.current = false; // 선택 상태 초기화
+            return;
+        }
+
+        if (!suggestions.includes(value)) {
+            onChange("", false); // 입력값 초기화
+        }
+        setSuggestions([]);
+    };
+
     return (
-        <Container>
-            {/* placeholder에 따른 아이콘 설정 */}
-            {placeholder === '출발역' ? <StartIcon /> : <ArrivedIcon />}
-            {/* 인풋창 */}
+        <Container ref={containerRef}>
+            {placeholder === "출발역" ? <StartIcon /> : <ArrivedIcon />}
             <Input
                 placeholder={placeholder}
                 value={value}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={handleInputChange}
+                onBlur={handleBlur}
             />
+            {suggestions.length > 0 && (
+                <Dropdown>
+                    {suggestions.map((station, index) => (
+                        <DropdownItem key={index} onMouseDown={() => handleSelect(station)}>
+                            {station}
+                        </DropdownItem>
+                    ))}
+                </Dropdown>
+            )}
         </Container>
     );
 };

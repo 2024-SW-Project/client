@@ -1,10 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { sidebarState, loginState, startStationState, endStationState } from '../atoms/atom';
+import { sidebarState, startStationState, endStationState, userInfoState } from '../atoms/atom';
 import { Link } from 'react-router-dom';
-import { FaLocationDot, FaTrainSubway } from "react-icons/fa6";
+import { FaLocationDot, FaTrainSubway, FaStar } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { logoutUser } from '../utils/Api';
 
 const SidebarContainer = styled.div`
     position: fixed;
@@ -126,11 +128,17 @@ const SubwayLiveIcon = styled(FaTrainSubway)`
     margin-right: 0.5rem;
 `;
 
+// 즐겨찾기/캘린더 아이콘
+const SubwaySaveIcon = styled(FaStar)`
+    color: #4D7EFF;
+    margin-right: 0.5rem;
+`;
+
 const SideBar = () => {
     const setSidebar = useSetRecoilState(sidebarState);
-    const [isLogin, setIsLogin] = useRecoilState(loginState);
     const setStartStation = useSetRecoilState(startStationState);
     const setEndStation = useSetRecoilState(endStationState);
+    const [userInfo, setUserInfo] = useRecoilState(userInfoState);
     const navigate = useNavigate();
 
     const handleRouteSearchClick = () => {
@@ -148,12 +156,12 @@ const SideBar = () => {
             <Overlay onClick={() => setSidebar(false)} />
 
             {/* 로그인 여부에 따른 사이드바 내용 */}
-            {isLogin ? (
+            {userInfo.isLogIn ? (
                 <SidebarContainer>
                     {/* 로그인 상태: 프로필 사진과 이름 */}
                     <LoginPrompt to="/mypage" onClick={() => setSidebar(false)}>
                         <ProfileImage src="/karina.png" alt="Profile" />
-                        카리나
+                        {userInfo.nickname}
                     </LoginPrompt>
 
                     <Divider />
@@ -169,12 +177,22 @@ const SideBar = () => {
                                 <SubwayLiveIcon />실시간위치
                             </MenuItem>
                         </Link>
+                        <Link to="/subway/save" onClick={() => setSidebar(false)} style={{ textDecoration: 'none' }}>
+                            <MenuItem>
+                                <SubwaySaveIcon />즐겨찾기/캘린더
+                            </MenuItem>
+                        </Link>
                     </MenuGroup>
 
                     <Divider />
 
+
                     {/* 로그아웃 버튼 */}
-                    <LoginSignupText onClick={() => { setIsLogin(false); setSidebar(false); }}>
+                    <LoginSignupText
+                        onClick={async () => {
+                            await logoutUser(setUserInfo, setSidebar, navigate);
+                        }}
+                    >
                         로그아웃
                     </LoginSignupText>
 
@@ -207,9 +225,13 @@ const SideBar = () => {
 
                     {/* 로그인 버튼 */}
                     <LoginSignupContainer>
-                        <LoginSignupText onClick={() => { setIsLogin(true); setSidebar(false); }}>
-                            로그인
-                        </LoginSignupText>
+                        <Link to="/auth/login" onClick={() => setSidebar(false)}>
+                            <LoginSignupText onClick={() => {
+                                setSidebar(false);
+                            }}>
+                                로그인
+                            </LoginSignupText>
+                        </Link>
                         <Link to="/auth/signup" onClick={() => setSidebar(false)}>
                             <LoginSignupText onClick={() => { setSidebar(false); }}>
                                 회원가입

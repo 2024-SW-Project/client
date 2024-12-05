@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
-import { climateCardState } from "../atoms/atom";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { climateCardState, userInfoState } from "../atoms/atom";
+import { apiCall } from "../utils/Api";
+import axios from "axios";
 
 const Container = styled.div`
     height: 100vh;
@@ -96,7 +98,7 @@ const LoginPage = () => {
     const [warning, setWarning] = useState("");
     const setClimateCard = useSetRecoilState(climateCardState);
     const navigate = useNavigate();
-
+    const [userInfo, setUserInfo] = useRecoilState(userInfoState);
 
     const handleLogin = async () => {
         if (!id && !password) {
@@ -112,42 +114,45 @@ const LoginPage = () => {
 
         setWarning(""); // 조건이 충족되면 경고 메시지 제거
 
-        const postData = {
-            username: id,
-            password: password,
-        };
-
         try {
-            // 비동기 요청 (API 호출)
-            const response = await axios.post(
+            const postData = {
+                username: id,
+                password: password,
+            };
+
+            const response = await apiCall(
+                "post",
                 `${import.meta.env.VITE_SERVER_URL}/auth/login`,
                 postData
             );
 
-            // 서버에서 응답 받은 데이터 구조 분해
-            const { token_type, access_token, refresh_token, user_info } = response.data;
-
-            // 로컬 스토리지에 토큰 저장
-            localStorage.setItem("token_type", token_type);
-            localStorage.setItem("access_token", access_token);
-            localStorage.setItem("refresh_token", refresh_token);
-
-            // user_info를 JSON 문자열로 저장
-            localStorage.setItem("user_info", JSON.stringify(user_info));
-
-            // Recoil state에 is_climate_card_eligible 저장
-            setClimateCard(user_info.is_climate_card_eligible);
-
-            // 성공 시 리다이렉트
-            alert("로그인 성공!");
-            navigate("/subway/search");
+            if (response.status === 200) {
+                const authorizationHeader = response.headers.authorization;
+                if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
+                    const accessToken = authorizationHeader.split(" ")[1];
+                    localStorage.setItem("accessToken", accessToken);
+                    localStorage.setItem("refreshToken", response.headers["refresh-token"]);
+                    axios.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+                    setUserInfo({
+                        isLogIn: true,
+                        nickname: response.data.nickname,
+                        profile_picture: response.data.profile_picture,
+                        user_id: response.data.user_id,
+                    });
+                    alert("로그인 성공!");
+                    navigate("/subway/search");
+                }
+            }
         } catch (error) {
-            // 에러 처리
-            setWarning("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
+            if (error.response && error.response.status === 401) {
+                // API 응답의 오류 메시지 사용
+                setWarning(error.response.data.error_message || "아이디 또는 비밀번호가 올바르지 않습니다.");
+            } else {
+                setWarning("로그인에 실패했습니다. 다시 시도해주세요.");
+            }
             console.error("로그인 에러:", error);
         }
     };
-
 
     return (
         <Container>
@@ -155,7 +160,7 @@ const LoginPage = () => {
                 <InputContainer>
                     <Input
                         type="id"
-                        placeholder="이메일을 입력해주세요"
+                        placeholder="아이디를 입력해주세요"
                         value={id}
                         onChange={(e) => setId(e.target.value)}
                     />
@@ -169,7 +174,7 @@ const LoginPage = () => {
                     />
                 </InputContainer>
                 {warning && <WarningText>{warning}</WarningText>}
-                <SubmitButton onClick={handleLogin}>로그인</SubmitButton>
+                <SubmitButton onClick={() => handleLogin(setUserInfo)}>로그인</SubmitButton>
                 <LinkContainer>
                     <LinkText href="/auth/signup">회원가입</LinkText>
                     <span style={{ color: "#efefef" }}>|</span>
