@@ -5,8 +5,9 @@ import { FaStar } from "react-icons/fa6";
 import { FaRegCalendar } from "react-icons/fa6";
 import TransferInfo from '../components/SubwayRouteComp/TransferInfo';
 import StationDetailInfo from '../components/SubwayRouteComp/StationDetailInfo';
-import { bookmarkState, startStationState, endStationState, climateCardState, routeResponseState } from '../atoms/atom';
+import { bookmarkState, startStationState, endStationState, climateCardState, routeResponseState, userInfoState } from '../atoms/atom';
 import { useRecoilState, useRecoilValue } from 'recoil';
+import { apiCall } from '../utils/Api';
 
 const Container = styled.div`
     height: 100vh;
@@ -73,9 +74,11 @@ const SubwayRoutePage = () => {
     const [endStation, setEndStation] = useRecoilState(endStationState);
     const hasClimateCard = useRecoilValue(climateCardState);
     const routeResponse = useRecoilValue(routeResponseState);
+    const [userInfo, setUserInfo] = useRecoilState(userInfoState);
 
     const [travelTime, setTravelTime] = useState(0);
     const [transferCount, setTransferCount] = useState(0);
+    const [favoriteId, setFavoriteId] = useState(null);
 
     const calculateTravelTime = (departure, arrival) => {
         const [depHour, depMinute] = departure.split(':').map(Number);
@@ -153,6 +156,65 @@ const SubwayRoutePage = () => {
         return Math.round(seconds / 60);
     };
 
+    // 즐겨찾기 데이터를 가져오는 함수
+    const fetchFavorites = async (userInfo, start_station_name, end_station_name, hasClimateCard) => {
+        const postData = {
+            "user_id": userInfo.user_id,
+            "start_station_name": start_station_name,
+            "end_station_name": end_station_name,
+            "is_climate_card_eligible": hasClimateCard
+        };
+
+        try {
+            const response = await apiCall("post", `${import.meta.env.VITE_SERVER_URL}/subway/detail/favorites/check`, postData, setUserInfo);
+            if (response?.data?.favorite_route) {
+                setIsBookmark(true);
+                setFavoriteId(response.data.favorite_id);
+            } else {
+                setIsBookmark(false);
+            }
+        } catch (error) {
+            console.error("즐겨찾기 데이터 가져오기 실패:", error);
+        }
+    };
+
+    const handlePostFavorite = async (userInfo, routeResponse, hasClimateCard, setUserInfo) => {
+        const postData = {
+            "user_id": userInfo.user_id,
+            "start_station_name": routeResponse.pathInfo.start_station_name,
+            "end_station_name": routeResponse.pathInfo.end_station_name,
+            "is_climate_card_eligible": hasClimateCard
+        };
+
+        try {
+            const response = await apiCall("post", `${import.meta.env.VITE_SERVER_URL}/subway/detail/favorites`, postData, setUserInfo);
+            if (response.data.message === "Route added to favorites successfully") {
+                setIsBookmark(true);
+            } else {
+                setIsBookmark(false);
+            }
+        } catch (error) {
+            console.error("즐겨찾기 요청 실패:", error);
+        }
+    }
+
+    const handleDeleteFavorite = async (favoriteId, setUserInfo) => {
+        const postData = {
+            id: favoriteId
+        };
+
+        try {
+            const response = await apiCall("delete", `${import.meta.env.VITE_SERVER_URL}/subway/save/favorite/delete`, postData, setUserInfo);
+            if (response.data.status === "success") {
+                setIsBookmark(false);
+            } else {
+                setIsBookmark(true);
+            }
+        } catch (error) {
+            console.error("즐겨찾기 해제요청 실패:", error);
+        }
+    }
+
     useEffect(() => {
         console.log('hasClimateCard:', hasClimateCard);
         console.log('routeResponse:', routeResponse);
@@ -163,6 +225,8 @@ const SubwayRoutePage = () => {
         setIsBookmark(routeResponse.pathInfo.is_favorite_route || false);
         setTravelTime(routeResponse.pathInfo.travel_time);
         setTransferCount(routeResponse.exChangeInfoSet.exChangeInfo.length);
+
+        fetchFavorites(userInfo, routeResponse.pathInfo.start_station_name, routeResponse.pathInfo.end_station_name, hasClimateCard);
     }, []);
 
     return (
@@ -175,7 +239,7 @@ const SubwayRoutePage = () => {
                 </TimeContainer>
                 {/* 즐겨찾기, 캘린더 아이콘 */}
                 <IconsContainer>
-                    {isBookmark ? <BookmarkTIcon onClick={() => setIsBookmark(false)} /> : <BookmarkFIcon onClick={() => setIsBookmark(true)} />}
+                    {isBookmark ? <BookmarkTIcon onClick={() => handleDeleteFavorite(favoriteId, setUserInfo)} /> : <BookmarkFIcon onClick={() => handlePostFavorite(userInfo, routeResponse, hasClimateCard, setUserInfo)} />}
                     <CalendarIcon />
                 </IconsContainer>
             </TopContainer>
@@ -194,7 +258,7 @@ const SubwayRoutePage = () => {
                             `${station.way_station_name}행 ${station.fast_train_info ? `| 빠른 환승 ${station.fast_train_info}` : ''}`
                         }
                         stationsPathList={station.station_name_list}
-                        stationsPathTime={calculateTravelTime(station.departure_time || "", station.arrival_time || "")}
+                        stationsPathTime={station.time}
                         endTime={station.arrival_time}
                         endStation={station.way_station_name}
                         endDoorInfo="내리는문 오른쪽"
