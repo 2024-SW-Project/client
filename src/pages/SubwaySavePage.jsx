@@ -4,6 +4,8 @@ import { useSetRecoilState, useRecoilState } from "recoil";
 import { routeResponseState, climateCardState } from "../atoms/atom";
 import { apiCall } from "../utils/Api";
 import FavoriteRoute from "../components/SubwaySaveComp/FavoriteRoute";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 
 const Container = styled.div`
   height: 100vh;
@@ -31,40 +33,47 @@ const FavoritesList = styled.div`
   flex-direction: column;
 `;
 
-const Section = styled.div`
-  width: 100%;
-  margin-top: 2rem;
-`;
-
-const Calendar = styled.div`
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.5rem;
-  margin-top: 1rem;
-`;
-
-const DateCell = styled.div`
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background-color: ${({ isActive }) => (isActive ? "#E8F5E9" : "transparent")};
-  color: ${({ isActive }) => (isActive ? "#4CAF50" : "#666666")};
-  cursor: pointer;
-  border: ${({ isActive }) => (isActive ? "2px solid #4CAF50" : "1px solid #e0e0e0")};
-  transition: background-color 0.2s, color 0.2s;
-
-  &:hover {
-    background-color: #f0f0f0;
-  }
-`;
-
 const RouteList = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
+`;
+
+const StyledCalendar = styled(Calendar)`
+  margin-top: 1rem;
+  width: 100%;
+  border: none;
+
+  .react-calendar__tile {
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+  }
+
+  .react-calendar__tile--active {
+    background-color: #e8f5e9;
+    color: #4caf50;
+    border: 2px solid #4caf50;
+  }
+
+  .react-calendar__tile--highlight {
+    background-color: #ffeb3b; /* 노란색 배경 */
+    color: #333333;
+    border: 2px solid #fbc02d;
+  }
+
+  .react-calendar__tile--selected {
+    background-color: #4d7eff; /* 파란색 배경 */
+    color: white;
+    border: 2px solid #4d7eff;
+  }
 `;
 
 const SubwaySavePage = () => {
@@ -79,11 +88,7 @@ const SubwaySavePage = () => {
     const fetchFavorites = async () => {
         try {
             const response = await apiCall("get", `${import.meta.env.VITE_SERVER_URL}/subway/save/favorite`);
-            if (response?.data?.data?.favorites) {
-                setFavorites(response.data.data.favorites);
-            } else {
-                setFavorites([]);
-            }
+            setFavorites(response?.data?.data?.favorites || []);
         } catch (error) {
             console.error("즐겨찾기 데이터 가져오기 실패:", error);
         }
@@ -93,11 +98,7 @@ const SubwaySavePage = () => {
     const fetchCalendarDates = async () => {
         try {
             const response = await apiCall("get", `${import.meta.env.VITE_SERVER_URL}/subway/save/calendar`);
-            if (response?.data?.data?.dates) {
-                setCalendarDates(response.data.data.dates);
-            } else {
-                setCalendarDates([]);
-            }
+            setCalendarDates(response?.data?.data?.dates || []);
         } catch (error) {
             console.error("캘린더 데이터 가져오기 실패:", error);
         }
@@ -107,17 +108,13 @@ const SubwaySavePage = () => {
     const fetchRoutesByDate = async (date) => {
         try {
             const response = await apiCall("get", `${import.meta.env.VITE_SERVER_URL}/subway/save/calendar?date=${date}`);
-            if (response?.data?.data?.routes) {
-                setRoutes(response.data.data.routes);
-            } else {
-                setRoutes([]);
-            }
+            setRoutes(response?.data?.data?.routes || []);
         } catch (error) {
             console.error("날짜별 경로 데이터 가져오기 실패:", error);
         }
     };
 
-    // 클릭 시 경로 상세 정보를 가져오는 함수
+    // 즐겨찾기 클릭 처리 함수
     const handleFavoriteClick = async (favorite) => {
         const postData = {
             start_station_name: favorite.start_station_name,
@@ -136,10 +133,18 @@ const SubwaySavePage = () => {
         }
     };
 
-    // 특정 날짜 클릭 처리
-    const handleDateClick = (date) => {
-        setSelectedDate(date);
-        fetchRoutesByDate(date);
+    // 날짜를 로컬 시간 기준으로 YYYY-MM-DD 형식으로 변환
+    const formatDateToLocal = (date) => {
+        const offset = date.getTimezoneOffset() * 60000; // 로컬과 UTC 간의 밀리초 차이
+        const localDate = new Date(date.getTime() - offset); // UTC 기준 밀리초에서 오프셋 제거
+        return localDate.toISOString().split("T")[0]; // YYYY-MM-DD 형식 반환
+    };
+
+    // 날짜 선택 처리 함수
+    const handleDateChange = (date) => {
+        const formattedDate = formatDateToLocal(date); // 로컬 시간 기준으로 날짜 포맷
+        setSelectedDate(formattedDate); // 선택된 날짜 업데이트
+        fetchRoutesByDate(formattedDate); // 해당 날짜의 경로 데이터를 가져옴
     };
 
     useEffect(() => {
@@ -161,25 +166,22 @@ const SubwaySavePage = () => {
                 )}
             </FavoritesList>
 
-            {/* 저장된 경로 보기
-            <Section> */}
+            {/* 캘린더와 저장된 경로 보기 */}
             <Title>저장된 경로 보기</Title>
-            <p>날짜를 선택해주세요.</p>
-            <Calendar>
-                {Array.from({ length: 30 }).map((_, i) => {
-                    const date = `2024-11-${String(i + 1).padStart(2, "0")}`;
-                    const isActive = calendarDates.includes(date);
-                    return (
-                        <DateCell
-                            key={date}
-                            isActive={isActive}
-                            onClick={() => isActive && handleDateClick(date)}
-                        >
-                            {i + 1}
-                        </DateCell>
-                    );
-                })}
-            </Calendar>
+            <StyledCalendar
+                onChange={handleDateChange}
+                value={selectedDate ? new Date(selectedDate) : new Date()} // 클릭한 날짜 설정
+                tileClassName={({ date }) => {
+                    const formattedDate = formatDateToLocal(date);
+                    if (formattedDate === selectedDate) {
+                        return "react-calendar__tile--selected"; // 클릭된 날짜
+                    }
+                    if (calendarDates.includes(formattedDate)) {
+                        return "react-calendar__tile--highlight"; // 저장된 경로가 있는 날짜
+                    }
+                    return null;
+                }}
+            />
             {selectedDate && (
                 <>
                     <Title>{selectedDate}</Title>
@@ -193,9 +195,7 @@ const SubwaySavePage = () => {
                         )}
                     </RouteList>
                 </>
-
             )}
-            {/* </Section> */}
         </Container>
     );
 };
