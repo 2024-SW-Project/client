@@ -4,7 +4,7 @@ import Map from '../components/SubwaySearchComp/Map';
 import InputStation from '../components/SubwaySearchComp/InputStation';
 import { FaArrowRightArrowLeft } from "react-icons/fa6";
 import { SwitchToggle } from '../components/SubwaySearchComp/SwitchToggle';
-import { startStationState, endStationState, climateCardState, routeResponseState } from '../atoms/atom'
+import { startStationState, endStationState, climateCardState, routeResponseState, userInfoState } from '../atoms/atom'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import axios from 'axios';
 
@@ -61,8 +61,9 @@ const SubwaySearchPage = () => {
     const [endStation, setEndStation] = useRecoilState(endStationState);
     const [isStartStationConfirmed, setIsStartStationConfirmed] = useState(false);
     const [isEndStationConfirmed, setIsEndStationConfirmed] = useState(false);
-    const hasClimateCard = useRecoilValue(climateCardState);
+    const [hasClimateCard, setHasClimateCard] = useRecoilState(climateCardState);
     const setRouteResponse = useSetRecoilState(routeResponseState);
+    const [userInfo, setUserInfo] = useRecoilState(userInfoState);
 
     const postRequest = async () => {
         const postData = {
@@ -86,6 +87,12 @@ const SubwaySearchPage = () => {
             postRequest();
         }
     }, [isStartStationConfirmed, isEndStationConfirmed]); // 상태 변화 감지 후 요청
+
+    useEffect(() => {
+        setStartStation("");
+        setEndStation("");
+        setHasClimateCard(userInfo.isLogIn);
+    }, []);
 
     const handleStartChange = (newValue, isConfirmed) => {
         setStartStation(newValue);
