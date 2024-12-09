@@ -204,7 +204,7 @@ const MyPage = () => {
     const [warnings, setWarnings] = useState({});
     const [withdrawPw, setWithdrawPw] = useState("");
     const [withdrawField, setWithdrawField] = useState(false);
-    const [withdrawWarning, setWithdrawWarning] = useState("경고");
+    const [withdrawWarning, setWithdrawWarning] = useState("");
     const navigate = useNavigate();
 
     const [userInfoRecoil, setUserInfoRecoil] = useRecoilState(userInfoState);
