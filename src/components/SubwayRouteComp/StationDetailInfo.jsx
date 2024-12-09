@@ -119,9 +119,11 @@ const StationDetailInfo = ({
     stationsPathTime,
     endTime,
     endStation,
-    endDoorInfo
+    endDoorInfo,
+    wayCode,
+    express,
+    fastTrainInfo
 }) => {
-
     const [isToggleChecked, setIsToggelChecked] = useState(false);
 
     return (
@@ -140,29 +142,37 @@ const StationDetailInfo = ({
                     <Time>{startTime}</Time>
                     <StationDetails>
                         <StationName>{startStation}</StationName>
-                        <Direction>{startDirection}</Direction>
+                        {/* 방향 및 빠른 환승 정보 */}
+                        <Direction>
+                            {`${startDirection}방향 | ${wayCode}`}
+                            {fastTrainInfo && (
+                                <div>
+                                    {express === "급행" ? `(급행)` : null} 빠른 환승 {fastTrainInfo}
+                                </div>
+                            )}
+                        </Direction>
                     </StationDetails>
                 </StationContainer>
 
                 {/* 이동 정보 */}
                 <StationsPathInfo>
-                    {stationsPathList.length > 0 ?
+                    {stationsPathList.length > 0 ? (
                         <>
                             <StationsToggle onClick={() => setIsToggelChecked(!isToggleChecked)}>
                                 {isToggleChecked ? <StationsUpIcon /> : <StationsDownIcon />} {stationsPathList.length + 1}개 역 ({stationsPathTime}분)
                             </StationsToggle>
                             {isToggleChecked && stationsPathList.length > 0 && (
-                                <div style={{ marginTop: '0.5rem' }}>
+                                <div style={{ marginTop: "0.5rem" }}>
                                     {stationsPathList.map((station, index) => (
                                         <div key={index}>{station}</div>
                                     ))}
                                 </div>
                             )}
                         </>
-                        : <div>1개 역 ({stationsPathTime}분)</div>}
+                    ) : (
+                        <div>1개 역 ({stationsPathTime}분)</div>
+                    )}
                 </StationsPathInfo>
-
-
 
                 {/* 도착역 정보 */}
                 <StationContainer>

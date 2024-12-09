@@ -112,7 +112,7 @@ const SubwayRoutePage = () => {
             "신림선": "#6789CA",
             "인천1호선": "#6CA8DE",
             "인천2호선": "#ED8000",
-            "인천공항철도": "#4E8FC6",
+            "인천국제공항철도": "#4E8FC6",
             "신분당선": "#D31145",
             "GTX-A": "#7D589F",
             "에버라인": "#F5A200",
@@ -143,7 +143,7 @@ const SubwayRoutePage = () => {
             "신림선": "신림",
             "인천1호선": "인천1",
             "인천2호선": "인천2",
-            "인천공항철도": "공항철도",
+            "인천국제공항철도": "공항철도",
             "신분당선": "신분당",
             "GTX-A": "GTX-A",
             "에버라인": "에버라인",
@@ -285,31 +285,37 @@ const SubwayRoutePage = () => {
             {/* 경로 세부 정보 */}
             {routeResponse.onStationSet.station.map((station, index) => (
                 <React.Fragment key={index}>
-                    {/* StationDetailInfo 컴포넌트 */}
                     <StationDetailInfo
                         startTime={station.departure_time}
                         startStation={station.start_station_name}
                         startLineNumber={getLineNumber(station.line_name)}
                         startLineColor={getLineColor(station.line_name)}
                         startDirection={
-                            `${station.way_station_name}행 ${station.fast_train_info ? `| 빠른 환승 ${station.fast_train_info}` : ''}`
+                            station.station_name_list[0]
+                                ? station.station_name_list[0]
+                                : station.way_station_name
                         }
                         stationsPathList={station.station_name_list}
                         stationsPathTime={station.time}
                         endTime={station.arrival_time}
                         endStation={station.way_station_name}
-                        endDoorInfo="내리는문 오른쪽"
+                        endDoorInfo={
+                            Math.random() > 0.5 ? "내리는문 오른쪽" : "내리는문 왼쪽"
+                        } // 랜덤 값
+                        wayCode={station.way_code}
+                        express={station.express}
+                        fastTrainInfo={
+                            routeResponse.exChangeInfoSet.exChangeInfo[index]?.fast_train_info || null
+                        }
                     />
 
-                    {/* TransferInfo 컴포넌트: 마지막 역은 제외 */}
                     {index < routeResponse.onStationSet.station.length - 1 && (
                         <TransferInfo
                             walkTime={routeResponse.exChangeInfoSet.exChangeInfo[index]?.exWalkTime || 2}
                         />
                     )}
                 </React.Fragment>
-            ))
-            }
+            ))}
 
         </Container>
     );
