@@ -39,17 +39,39 @@ const ClimateTag = styled.span`
   font-weight: bold;
 `;
 
-const FavoriteRoute = ({ favorite, onClick }) => {
-    return (
-        <FavoriteItem onClick={() => onClick(favorite)}>
-            <StationName>{favorite.start_station_name}</StationName>
-            <Arrow>→</Arrow>
-            <StationName>{favorite.end_station_name}</StationName>
-            <ClimateTag $isClimate={favorite.is_climate_card_eligible}>
-                {favorite.is_climate_card_eligible ? "기후동행경로" : "일반경로"}
-            </ClimateTag>
-        </FavoriteItem>
-    );
+const DeleteButton = styled.button`
+  font-size: 0.8rem;
+  color: #ffffff;
+  background-color: #ff5722;
+  border: none;
+  border-radius: 5px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e53935;
+  }
+`;
+
+const FavoriteRoute = ({ favorite, onClick, isDeletable=false, onDelete }) => {
+  return (
+    <FavoriteItem>
+      <div onClick={() => onClick(favorite)} style={{ flex: 1, display: "flex", alignItems: "center" }}>
+        <StationName>{favorite.start_station_name}</StationName>
+        <Arrow>→</Arrow>
+        <StationName>{favorite.end_station_name}</StationName>
+        <ClimateTag $isClimate={favorite.is_climate_card_eligible}>
+          {favorite.is_climate_card_eligible ? "기후동행경로" : "일반경로"}
+        </ClimateTag>
+      </div>
+      {isDeletable && (
+        <DeleteButton onClick={() => onDelete(favorite)}>
+          삭제
+        </DeleteButton>
+      )}
+    </FavoriteItem>
+  );
 };
 
 export default FavoriteRoute;

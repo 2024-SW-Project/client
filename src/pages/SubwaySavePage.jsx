@@ -133,6 +133,24 @@ const SubwaySavePage = () => {
         }
     };
 
+    const handleDeleteFavorite = async (favorite) => {
+        const postData = { id: favorite.id };
+
+        try {
+            const response = await apiCall(
+                "delete",
+                `${import.meta.env.VITE_SERVER_URL}/subway/save/favorite/delete`,
+                postData
+            );
+
+            if (response.data.status === "success") {
+                setFavorites((prevFavorites) => prevFavorites.filter((f) => f.id !== favorite.id));
+            }
+        } catch (error) {
+            console.error("즐겨찾기 삭제 요청 실패:", error);
+        }
+    };
+
     // 날짜를 로컬 시간 기준으로 YYYY-MM-DD 형식으로 변환
     const formatDateToLocal = (date) => {
         const offset = date.getTimezoneOffset() * 60000; // 로컬과 UTC 간의 밀리초 차이
@@ -147,6 +165,25 @@ const SubwaySavePage = () => {
         fetchRoutesByDate(formattedDate); // 해당 날짜의 경로 데이터를 가져옴
     };
 
+    // 캘린더 삭제
+    const handleDeleteCalendar = async (route) => {
+        const postData = { id: route.id };
+
+        try {
+            const response = await apiCall(
+                "delete",
+                `${import.meta.env.VITE_SERVER_URL}/subway/save/calendar/delete`,
+                postData
+            );
+
+            if (response.data.status === "success") {
+                setRoutes((prevRoutes) => prevRoutes.filter((r) => r.id !== route.id));
+            }
+        } catch (error) {
+            console.error("삭제 요청 실패:", error);
+        }
+    };
+
     useEffect(() => {
         fetchFavorites();
         fetchCalendarDates();
@@ -159,12 +196,19 @@ const SubwaySavePage = () => {
             <FavoritesList>
                 {favorites.length > 0 ? (
                     favorites.map((favorite, index) => (
-                        <FavoriteRoute key={index} favorite={favorite} onClick={handleFavoriteClick} />
+                        <FavoriteRoute
+                            key={index}
+                            favorite={favorite}
+                            onClick={handleFavoriteClick}
+                            isDeletable={true} // 삭제 가능 여부 추가
+                            onDelete={() => handleDeleteFavorite(favorite)} // 삭제 함수 추가
+                        />
                     ))
                 ) : (
                     <span>즐겨찾기된 경로가 없습니다</span>
                 )}
             </FavoritesList>
+
 
             {/* 캘린더와 저장된 경로 보기 */}
             <Title>저장된 경로 보기</Title>
@@ -188,7 +232,13 @@ const SubwaySavePage = () => {
                     <RouteList>
                         {routes.length > 0 ? (
                             routes.map((route, index) => (
-                                <FavoriteRoute key={index} favorite={route} onClick={handleFavoriteClick} />
+                                <FavoriteRoute
+                                    key={index}
+                                    favorite={route}
+                                    onClick={handleFavoriteClick}
+                                    isDeletable={true}
+                                    onDelete={() => handleDeleteCalendar(route)}
+                                />
                             ))
                         ) : (
                             <span>저장된 경로가 없습니다</span>
