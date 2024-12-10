@@ -32,17 +32,17 @@ const Tab = styled.button`
     text-align: center;
     font-size: 1rem;
     font-weight: bold;
-    color: ${({ selected, lineColor }) => (selected ? lineColor : "#666271")};
+    color: ${({ selected, $lineColor }) => (selected ? $lineColor : "#666271")};
     background-color: #ffffff;
     border: none;
-    border-bottom: ${({ selected, lineColor }) =>
-        selected ? `3px solid ${lineColor}` : "1px solid #ccc"};
+    border-bottom: ${({ selected, $lineColor }) =>
+        selected ? `3px solid ${$lineColor}` : "1px solid #ccc"};
     cursor: pointer;
     transition: background-color 0.3s;
 
     &:hover {
-        background-color: ${({ selected, lineColor }) =>
-        selected ? lineColor : "#f0f0f0"};
+        background-color: ${({ selected, $lineColor }) =>
+        selected ? $lineColor : "#f0f0f0"};
         color: ${({ selected }) => (selected ? "#efefef" : "#666271")};
     }
 `;
@@ -73,24 +73,51 @@ const MenuButton = styled.button`
     flex: 1;
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
-    color: ${({ selected, lineColor }) => (selected ? "#fff" : lineColor)};
-    background-color: ${({ selected, lineColor }) => (selected ? lineColor : "#ffffff")};
-    border: 2px solid ${({ lineColor }) => lineColor};
+    color: ${({ selected, $lineColor }) => (selected ? "#fff" : $lineColor)};
+    background-color: ${({ selected, $lineColor }) => (selected ? $lineColor : "#ffffff")};
+    border: 2px solid ${({ $lineColor }) => $lineColor};
     border-radius: 5px;
     cursor: pointer;
 
     &:hover {
-        background-color: ${({ selected, lineColor }) =>
-        selected ? lineColor : "#f0f0f0"};
+        background-color: ${({ selected, $lineColor }) =>
+        selected ? $lineColor : "#f0f0f0"};
     }
 `;
 
+const ReloadButton = styled.button`
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background-color: #666271;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #c0c0c0;
+    }
+`;
+
+const CountdownText = styled.span`
+    font-size: 0.9rem;
+    color: white;
+    font-weight: bold;
+`;
 
 const SubwayLivePage = () => {
     const [lineName, setLineName] = useState("1호선"); // Default line: 1호선
     const [direction, setDirection] = useState(0); // Default direction: 상행
     const [currentTrains, setCurrentTrains] = useState([]);
     const [selectedMenu, setSelectedMenu] = useState(1); // Default menu value
+    const [countdown, setCountdown] = useState(15); // 15초 카운트다운
 
     const lines = [
         { code: "1001", name: "1호선" },
@@ -158,9 +185,31 @@ const SubwayLivePage = () => {
         }
     };
 
+    // 드롭다운 및 방향 변경 시 데이터 로드
     useEffect(() => {
         fetchTrainPositions();
-    }, [lineName, direction]);
+    }, [lineName, direction, selectedMenu]);
+
+    // 15초 카운트다운 및 자동 갱신
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCountdown((prev) => {
+                if (prev === 1) {
+                    fetchTrainPositions();
+                    return 15;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    // 리로드 버튼 클릭 시
+    const handleReload = () => {
+        fetchTrainPositions();
+        setCountdown(15); // 카운트다운 리셋
+    };
 
     const handleDirectionChange = (directionValue) => {
         setDirection(directionValue);
@@ -187,7 +236,7 @@ const SubwayLivePage = () => {
                         <MenuButton
                             key={index}
                             selected={selectedMenu === index + 1}
-                            lineColor={lineColor} // 추가
+                            $lineColor={lineColor}
                             onClick={() => handleMenuChange(index + 1)}
                         >
                             {menu}
@@ -198,14 +247,14 @@ const SubwayLivePage = () => {
             <TabsContainer>
                 <Tab
                     selected={direction === 0}
-                    lineColor={lineColor} // 추가
+                    $lineColor={lineColor}
                     onClick={() => handleDirectionChange(0)}
                 >
                     상행
                 </Tab>
                 <Tab
                     selected={direction === 1}
-                    lineColor={lineColor} // 추가
+                    $lineColor={lineColor}
                     onClick={() => handleDirectionChange(1)}
                 >
                     하행
@@ -233,12 +282,15 @@ const SubwayLivePage = () => {
                                         : StationsList[`Line${code}_down`]
                                 }
                                 currentTrains={currentTrains}
-                                lineColor={lineColor} // 전달
+                                lineColor={lineColor}
                             />
                         )}
                     </React.Fragment>
                 ))}
             </SubwayContainer>
+            <ReloadButton onClick={handleReload}>
+                <CountdownText>{countdown}</CountdownText>
+            </ReloadButton>
         </Container>
     );
 };
