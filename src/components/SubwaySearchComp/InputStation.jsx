@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
-import { FaLocationArrow } from "react-icons/fa6";
-import { FaFlag } from "react-icons/fa6";
+import { FaLocationArrow, FaFlag } from "react-icons/fa6";
 import axios from "axios";
 
 const Container = styled.div`
@@ -62,14 +61,14 @@ const DropdownItem = styled.li`
     }
 `;
 
-const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
+const InputStation = ({ placeholder, value, onChange }) => {
     const [suggestions, setSuggestions] = useState([]);
     const containerRef = useRef(null);
-    const isSelecting = useRef(false); // 드롭다운 선택 상태를 추적
+    const isSelecting = useRef(false); // 드롭다운 선택 상태 확인
 
     const handleInputChange = async (e) => {
         const inputValue = e.target.value;
-        onChange(inputValue, false); // 값을 변경하되 확정되지 않음
+        onChange(inputValue, false); // 값을 변경하지만 확정되지 않은 상태
 
         if (inputValue.trim() === "") {
             setSuggestions([]);
@@ -94,21 +93,19 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
     };
 
     const handleSelect = (stationName) => {
-        isSelecting.current = true; // 드롭다운에서 값 선택
+        isSelecting.current = true; // 드롭다운 선택 상태 활성화
         onChange(stationName, true); // 값을 확정
         setSuggestions([]);
-        onConfirm(); // 값 확정 시 호출
     };
 
     const handleBlur = () => {
-        // 드롭다운에서 선택 중일 경우 초기화 방지
         if (isSelecting.current) {
-            isSelecting.current = false; // 선택 상태 초기화
+            isSelecting.current = false; // 드롭다운 선택 상태 초기화
             return;
         }
 
         if (!suggestions.includes(value)) {
-            onChange("", false); // 입력값 초기화
+            onChange("", false); // 잘못된 값 초기화
         }
         setSuggestions([]);
     };
@@ -125,7 +122,10 @@ const InputStation = ({ placeholder, value, onChange, onConfirm }) => {
             {suggestions.length > 0 && (
                 <Dropdown>
                     {suggestions.map((station, index) => (
-                        <DropdownItem key={index} onMouseDown={() => handleSelect(station)}>
+                        <DropdownItem
+                            key={index}
+                            onMouseDown={() => handleSelect(station)} // 드롭다운 선택 시 실행
+                        >
                             {station}
                         </DropdownItem>
                     ))}
