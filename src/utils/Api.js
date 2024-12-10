@@ -29,6 +29,8 @@ export const refreshAccessToken = async (setUserInfo) => {
         } else {
             console.log("Refresh Token이 만료되었거나 유효하지 않음");
 
+            console.log("강제 로그아웃")
+
             // 로컬 스토리지 및 Axios 헤더 초기화
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
@@ -78,6 +80,23 @@ export const apiCall = async (method, endpoint, data = null, setUserInfo = null)
                 return retryResponse;
             } else {
                 console.log("로그인 필요");
+
+                console.log("강제 로그아웃")
+                // 로컬 스토리지 및 Axios 헤더 초기화
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                axios.defaults.headers.common["Authorization"] = "";
+
+                // Recoil 상태 초기화
+                if (setUserInfo) {
+                    setUserInfo((prev) => ({
+                        ...prev,
+                        isLogIn: false,
+                        nickname: "",
+                        profile_picture: "",
+                        user_id: null,
+                    }));
+                }
                 window.location.href = "/auth/login";
             }
         } else {
@@ -120,6 +139,22 @@ export const logoutUser = async (setUserInfo, setSidebar = null, navigate) => {
         }
     } catch (error) {
         console.error("로그아웃 요청 실패:", error);
-        alert("로그아웃에 실패했습니다. 다시 시도해주세요.");
+        console.log("강제 로그아웃")
+        // 로컬 스토리지 및 Axios 헤더 초기화
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        axios.defaults.headers.common["Authorization"] = "";
+
+        // Recoil 상태 초기화
+        if (setUserInfo) {
+            setUserInfo((prev) => ({
+                ...prev,
+                isLogIn: false,
+                nickname: "",
+                profile_picture: "",
+                user_id: null,
+            }));
+        }
+        window.location.href = "/auth/login";
     }
 };

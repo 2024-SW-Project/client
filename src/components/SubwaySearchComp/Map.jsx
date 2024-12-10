@@ -16,7 +16,7 @@ const StyledObject = styled.object`
     height: 100%;
 `;
 
-const Map = () => {
+const Map = ({ onStartConfirm, onEndConfirm }) => {
     const svgRef = useRef(null); // SVG 객체 참조
     const currentViewBox = useRef({ x: 0, y: 0, width: 1200, height: 1080 }); // 초기 뷰박스 설정
     const isPointerDown = useRef(false); // 포인터 다운 상태 추적
@@ -206,11 +206,11 @@ const Map = () => {
                     x={pickerPosition.x}
                     y={pickerPosition.y}
                     onStartClick={() => {
-                        setStartStation(pickerPosition.stationName);
+                        onStartConfirm(pickerPosition.stationName); // 출발역 확정
                         setPickerPosition({ ...pickerPosition, visible: false });
                     }}
                     onEndClick={() => {
-                        setEndStation(pickerPosition.stationName);
+                        onEndConfirm(pickerPosition.stationName); // 도착역 확정
                         setPickerPosition({ ...pickerPosition, visible: false });
                     }}
                     onClose={() => {

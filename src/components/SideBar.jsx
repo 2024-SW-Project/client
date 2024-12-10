@@ -7,6 +7,9 @@ import { FaLocationDot, FaTrainSubway, FaStar } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { logoutUser } from '../utils/Api';
+import profile1 from "../assets/1.png";
+import profile2 from "../assets/2.png";
+import profile3 from "../assets/3.png";
 
 const SidebarContainer = styled.div`
     position: fixed;
@@ -141,6 +144,12 @@ const SideBar = () => {
     const [userInfo, setUserInfo] = useRecoilState(userInfoState);
     const navigate = useNavigate();
 
+    const profileImages = {
+        1: profile1,
+        2: profile2,
+        3: profile3,
+    };
+
     const handleRouteSearchClick = () => {
         // 상태 초기화
         setSidebar(false);
@@ -160,7 +169,10 @@ const SideBar = () => {
                 <SidebarContainer>
                     {/* 로그인 상태: 프로필 사진과 이름 */}
                     <LoginPrompt to="/mypage" onClick={() => setSidebar(false)}>
-                        <ProfileImage src="/karina.png" alt="Profile" />
+                        <ProfileImage
+                            src={profileImages[userInfo.profile_picture] || profile1} // 기본값은 profile1
+                            alt="Profile"
+                        />
                         {userInfo.nickname}
                     </LoginPrompt>
 

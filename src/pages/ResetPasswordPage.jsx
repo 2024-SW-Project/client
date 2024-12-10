@@ -4,6 +4,7 @@ import axios from "axios";
 import { useRecoilState } from "recoil";
 import { resetPwResponseState } from '../atoms/atom'
 import { useNavigate } from "react-router-dom";
+import Loading from "../components/Loading";
 
 const Container = styled.div`
     height: 100vh;
@@ -80,6 +81,7 @@ const ResetPasswordPage = () => {
     const [form, setForm] = useState({ username: "", email: "" });
     const [warnings, setWarnings] = useState({ username: "", email: "" });
     const [resetPwResponse, setResetPwResponse] = useRecoilState(resetPwResponseState);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const validateForm = () => {
@@ -112,6 +114,7 @@ const ResetPasswordPage = () => {
         if (!validateForm()) return;
 
         try {
+            setLoading(true);
             const response = await axios.post(
                 `${import.meta.env.VITE_SERVER_URL}/auth/reset-password`,
                 {
@@ -120,6 +123,7 @@ const ResetPasswordPage = () => {
                 }
             );
             setResetPwResponse(response.data);
+            setLoading(false);
             navigate("/auth/reset-password/result");
         } catch (error) {
             setWarnings((prev) => ({
@@ -131,6 +135,8 @@ const ResetPasswordPage = () => {
 
     return (
         <Container>
+            {loading ? <Loading /> : null}
+
             <FormWrapper>
                 <InputContainer>
                     <Label>아이디</Label>

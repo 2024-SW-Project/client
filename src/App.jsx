@@ -1,5 +1,5 @@
 import React from 'react';
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, Navigate } from 'react-router-dom';
 import { RecoilRoot, useRecoilValue } from 'recoil';
 
 import './App.css';
@@ -12,7 +12,7 @@ import SubwayLivePage from './pages/SubwayLivePage';
 import MyPage from './pages/MyPage';
 import SubwayRoutePage from './pages/SubwayRoutePage';
 
-import { sidebarState } from './atoms/atom';
+import { sidebarState, userInfoState } from './atoms/atom';
 import SignUpPage from './pages/SignUpPage';
 import FindIdPage from './pages/FindIdPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -20,6 +20,15 @@ import SubwaySavePage from './pages/SubwaySavePage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import FindIdResultPage from './pages/FindIdResultPage';
 import ResetPasswordResultPage from './pages/ResetPasswordResultPage';
+
+// ProtectedRoute 컴포넌트: 로그인 상태 확인 후 접근 허용
+const ProtectedRoute = ({ children }) => {
+  const userInfo = useRecoilValue(userInfoState);
+  if (!userInfo.isLogIn) {
+    return <Navigate to="/auth/login" replace />;
+  }
+  return children;
+};
 
 const RootLayout = () => {
   const isSidebarOpen = useRecoilValue(sidebarState);
@@ -65,11 +74,19 @@ const router = createBrowserRouter([
       },
       {
         path: '/mypage',
-        element: <MyPage />
+        element: (
+          <ProtectedRoute>
+            <MyPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/mypage/change-password',
-        element: <ChangePasswordPage />
+        element: (
+          <ProtectedRoute>
+            <ChangePasswordPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: '/subway/search',
@@ -85,7 +102,11 @@ const router = createBrowserRouter([
       },
       {
         path: '/subway/save',
-        element: <SubwaySavePage />
+        element: (
+          <ProtectedRoute>
+            <SubwaySavePage />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

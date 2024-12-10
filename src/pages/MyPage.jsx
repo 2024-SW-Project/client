@@ -6,6 +6,9 @@ import { FaPen } from "react-icons/fa6";
 import { apiCall } from '../utils/Api';
 import { useRecoilState } from "recoil";
 import { userInfoState } from "../atoms/atom";
+import profile1 from "../assets/1.png";
+import profile2 from "../assets/2.png";
+import profile3 from "../assets/3.png";
 
 const Container = styled.div`
     height: 100vh;
@@ -189,6 +192,33 @@ const WithdrawInput = styled.input`
     }
 `;
 
+const ProfileImage = styled.img`
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 2px solid #4d7eff;
+`;
+
+const ProfileImageContainer = styled.div`
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+`;
+
+const SelectableImage = styled.img`
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: ${({ selected }) => (selected ? "2px solid #4d7eff" : "2px solid transparent")};
+
+    &:hover {
+        border: 2px solid #4d7eff;
+    }
+`;
+
 const MyPage = () => {
     const [userInfo, setUserInfo] = useState({
         name: "",
@@ -204,10 +234,16 @@ const MyPage = () => {
     const [warnings, setWarnings] = useState({});
     const [withdrawPw, setWithdrawPw] = useState("");
     const [withdrawField, setWithdrawField] = useState(false);
-    const [withdrawWarning, setWithdrawWarning] = useState("경고");
+    const [withdrawWarning, setWithdrawWarning] = useState("");
     const navigate = useNavigate();
 
     const [userInfoRecoil, setUserInfoRecoil] = useRecoilState(userInfoState);
+
+    const profileImages = {
+        1: profile1,
+        2: profile2,
+        3: profile3,
+    };
 
     const fetchUserInfo = async () => {
         try {
@@ -219,7 +255,10 @@ const MyPage = () => {
                     },
                 }
             );
-            setUserInfo(response.data);
+            setUserInfo({
+                ...response.data,
+                profile_picture: profileImages[response.data.profile_picture] || profile1, // 매칭된 이미지 설정
+            });
         } catch (error) {
             console.error("Failed to fetch user info:", error);
         }
@@ -281,11 +320,17 @@ const MyPage = () => {
             alert("중복체크를 완료해주세요.");
             return;
         }
+        let fieldValue = userInfo[field];
+        if (field === "profile_picture") {
+            fieldValue = Object.keys(profileImages).find(
+                (key) => profileImages[key] === userInfo.profile_picture
+            ); // 숫자로 변환
+        }
 
         try {
             await axios.patch(
                 `${import.meta.env.VITE_SERVER_URL}/mypage/profile`,
-                { [field]: userInfo[field] },
+                { [field]: fieldValue },
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -387,6 +432,40 @@ const MyPage = () => {
     return (
         <Container>
             <ProfileWrapper>
+                {/* 프로필 */}
+                <FieldContainer>
+                    <FieldLabel>프로필 사진</FieldLabel>
+                    {editingField === "profile_picture" ? (
+                        <>
+                            <ProfileImageContainer>
+                                {[1, 2, 3].map((id) => (
+                                    <SelectableImage
+                                        key={id}
+                                        src={profileImages[id]}
+                                        selected={userInfo.profile_picture === profileImages[id]}
+                                        onClick={() =>
+                                            handleFieldChange(
+                                                "profile_picture",
+                                                profileImages[id]
+                                            )
+                                        }
+                                    />
+                                ))}
+                            </ProfileImageContainer>
+                            <SaveButton onClick={() => handleSave("profile_picture")}>
+                                저장
+                            </SaveButton>
+                        </>
+                    ) : (
+                        <>
+                            <ProfileImage src={userInfo.profile_picture} alt="Profile" />
+                            <EditButton onClick={() => handleEditClick("profile_picture")}>
+                                <FaPen />
+                            </EditButton>
+                        </>
+                    )}
+                </FieldContainer>
+
                 {/* 이름 */}
                 <FieldContainer>
                     <FieldLabel>이름</FieldLabel>

@@ -154,7 +154,7 @@ const SignupPage = () => {
     const [checkStatus, setCheckStatus] = useState({
         id: "", // "success" | "error"
         nickname: "", // "success" | "error"
-
+        email: "", // "success" | "error"
     });
 
     const [climateCard, setClimateCard] = useState(null);
@@ -219,7 +219,8 @@ const SignupPage = () => {
             Object.values(form).every((value) => value) && // 모든 필드가 입력되었는지 확인
             climateCard !== null && // 기후동행카드 여부 선택
             checkStatus.id === "success" && // 아이디 중복체크 성공
-            checkStatus.nickname === "success" // 닉네임 중복체크 성공
+            checkStatus.nickname === "success" && // 닉네임 중복체크 성공
+            checkStatus.email === "success" // 이메일 중복체크 성공
         );
     };
 
@@ -306,6 +307,35 @@ const SignupPage = () => {
         }
     };
 
+    const handleCheckEmail = async () => {
+        if (!form.email) {
+            setWarnings((prevWarnings) => ({
+                ...prevWarnings,
+                email: "이메일을 입력해주세요.",
+            }));
+            setCheckStatus((prevStatus) => ({ ...prevStatus, email: "" }));
+            return;
+        }
+
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_SERVER_URL}/auth/signup/check-email`,
+                { params: { email: form.email } }
+            );
+
+            if (response.data.isAvailable) {
+                setCheckStatus((prevStatus) => ({ ...prevStatus, email: "success" }));
+                setWarnings((prevWarnings) => ({ ...prevWarnings, email: "" }));
+            }
+        } catch (error) {
+            setCheckStatus((prevStatus) => ({ ...prevStatus, email: "error" }));
+            setWarnings((prevWarnings) => ({
+                ...prevWarnings,
+                email: "사용 불가능한 이메일입니다.",
+            }));
+        }
+    };
+
     const handleSubmit = async () => {
         if (!isFormValid()) return;
 
@@ -319,19 +349,14 @@ const SignupPage = () => {
                 isClimateCardEligible: climateCard,
             };
 
-            console.log(postData);
-
             const response = await axios.post(
                 `${import.meta.env.VITE_SERVER_URL}/auth/signup`,
                 postData
             );
 
-            console.log(response);
-
             alert("회원가입 성공!");
             navigate("/subway/search");
         } catch (error) {
-            // 실패 시 경고 메시지 업데이트
             setWarnings((prevWarnings) => ({
                 ...prevWarnings,
                 apiError: error.response?.data?.error_message || "회원가입 실패. 다시 시도해주세요.",
@@ -366,6 +391,13 @@ const SignupPage = () => {
                         onBlur={() => handleBlur("email")}
                     />
                     {warnings.email && <WarningText>{warnings.email}</WarningText>}
+                    <CheckButton onClick={handleCheckEmail}>중복체크</CheckButton>
+                    {checkStatus.email === "success" && (
+                        <SuccessText>사용 가능한 이메일입니다.</SuccessText>
+                    )}
+                    {checkStatus.email === "error" && (
+                        <WarningText>사용 불가능한 이메일입니다.</WarningText>
+                    )}
                 </InputContainer>
                 <InputContainer>
                     <Label>비밀번호</Label>

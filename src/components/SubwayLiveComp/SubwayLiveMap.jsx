@@ -15,12 +15,12 @@ const StationListContainer = styled.div`
 
 const Line = styled.div`
     position: absolute;
-    left: 4rem; /* 선이 동그라미를 통과하도록 위치 조정 */
+    left: 4rem;
     top: 0;
     width: 4px;
-    background-color: #4d7eff;
+    background-color: ${({ $lineColor }) => $lineColor};
     z-index: 0;
-    height: ${({ height }) => height}px; /* 동적으로 높이 설정 */
+    height: ${({ height }) => height}px;
 `;
 
 const StationContainer = styled.div`
@@ -54,24 +54,28 @@ const StationName = styled.div`
     margin-left: 3.5rem; /* 이름을 동그라미 오른쪽으로 배치 */
 `;
 
-const SubwayLiveMap = ({ stations, currentTrains }) => {
+const SubwayLiveMap = ({ stations = [], currentTrains, lineColor }) => {
     const containerRef = useRef(null);
     const [lineHeight, setLineHeight] = useState(0);
 
     useEffect(() => {
-        // 컨테이너 높이를 기준으로 Line의 높이를 설정
         if (containerRef.current) {
-            setLineHeight(containerRef.current.scrollHeight); // 스크롤 가능한 전체 높이
+            // 실제 스크롤 높이와 예상 높이 비교 후, 더 큰 값으로 설정
+            const actualHeight = containerRef.current.scrollHeight;
+            const expectedHeight = stations.length * 32; // 예상 높이 (32px 기준)
+            setLineHeight(Math.max(actualHeight, expectedHeight));
         }
-    }, [stations]);
+    }, [stations]); // stations가 변경될 때마다 실행
 
     return (
         <StationListContainer ref={containerRef}>
-            <Line height={lineHeight} />
+            <Line $lineColor={lineColor} height={lineHeight} />
             {stations.map((station, index) => (
                 <StationContainer key={index}>
-                    <Circle />
-                    {currentTrains.includes(station) && <TrainIcon />}
+                    <Circle style={{ borderColor: lineColor }} />
+                    {currentTrains.includes(station) && (
+                        <TrainIcon style={{ color: lineColor }} />
+                    )}
                     <StationName>{station}</StationName>
                 </StationContainer>
             ))}
