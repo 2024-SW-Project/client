@@ -65,25 +65,39 @@ const DirectionMenu = styled.div`
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.8rem; /* 버튼 간 간격 증가 */
     margin-bottom: 1rem;
 `;
 
 const MenuButton = styled.button`
     flex: 1;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem;
     font-size: 0.9rem;
     color: ${({ selected, $lineColor }) => (selected ? "#fff" : $lineColor)};
     background-color: ${({ selected, $lineColor }) => (selected ? $lineColor : "#ffffff")};
     border: 2px solid ${({ $lineColor }) => $lineColor};
-    border-radius: 5px;
+    border-radius: 10px; /* 둥근 테두리 추가 */
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    line-height: 1.4; /* 텍스트 간격 조정 */
+    text-align: center; /* 텍스트 가운데 정렬 */
+    width: 4rem;
 
     &:hover {
         background-color: ${({ selected, $lineColor }) =>
         selected ? $lineColor : "#f0f0f0"};
     }
+
+    span {
+        display: block;
+        font-weight: ${({ selected }) => (selected ? "bold" : "normal")}; /* 선택된 버튼은 굵게 */
+    }
 `;
+
+
 
 const ReloadButton = styled.button`
     position: fixed;
@@ -209,20 +223,24 @@ const SubwayLivePage = () => {
                 selectedValue={lineName}
                 onSelect={(name) => setLineName(name)}
             />
-            {menuMapping[lineName] && (
+            {menuMapping[lineName] ? ( // 메뉴가 있을 경우에만 렌더링
                 <DirectionMenu>
-                    {menuMapping[lineName].map((menu, index) => (
-                        <MenuButton
-                            key={index}
-                            selected={selectedMenu === index + 1}
-                            $lineColor={lineColor}
-                            onClick={() => handleMenuChange(index + 1)}
-                        >
-                            {menu}
-                        </MenuButton>
-                    ))}
+                    {menuMapping[lineName].map((menu, index) => {
+                        const [firstLine, secondLine] = menu.split("-");
+                        return (
+                            <MenuButton
+                                key={index}
+                                selected={selectedMenu === index + 1}
+                                $lineColor={lineColor}
+                                onClick={() => handleMenuChange(index + 1)}
+                            >
+                                <span>{firstLine}</span>
+                                <span>{secondLine}</span>
+                            </MenuButton>
+                        );
+                    })}
                 </DirectionMenu>
-            )}
+            ) : null}
             <TabsContainer>
                 <Tab
                     selected={direction === 0}
@@ -240,15 +258,32 @@ const SubwayLivePage = () => {
                 </Tab>
             </TabsContainer>
             <SubwayContainer>
-                <SubwayLiveMap
-                    stations={
-                        direction === 0
-                            ? StationsList[`Line${lineCode}_up_${selectedMenu}`] || []
-                            : StationsList[`Line${lineCode}_down_${selectedMenu}`] || []
-                    }
-                    currentTrains={currentTrains}
-                    lineColor={lineColor}
-                />
+                {lines.map(({ code }) => (
+                    <React.Fragment key={code}>
+                        {lineCode === code && direction === 0 && (
+                            <SubwayLiveMap
+                                stations={
+                                    menuMapping[lineName]
+                                        ? StationsList[`Line${code}_up_${selectedMenu}`]
+                                        : StationsList[`Line${code}_up`]
+                                }
+                                currentTrains={currentTrains}
+                                lineColor={lineColor}
+                            />
+                        )}
+                        {lineCode === code && direction === 1 && (
+                            <SubwayLiveMap
+                                stations={
+                                    menuMapping[lineName]
+                                        ? StationsList[`Line${code}_down_${selectedMenu}`]
+                                        : StationsList[`Line${code}_down`]
+                                }
+                                currentTrains={currentTrains}
+                                lineColor={lineColor}
+                            />
+                        )}
+                    </React.Fragment>
+                ))}
             </SubwayContainer>
             <ReloadButton onClick={handleReload}>
                 <FaDownloadIcon />
