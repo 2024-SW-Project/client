@@ -18,11 +18,10 @@ const Line = styled.div`
     left: 4rem;
     top: 0;
     width: 4px;
-    background-color: ${({ $lineColor }) => $lineColor}; /* 수정 */
+    background-color: ${({ $lineColor }) => $lineColor};
     z-index: 0;
     height: ${({ height }) => height}px;
 `;
-
 
 const StationContainer = styled.div`
     display: flex;
@@ -61,9 +60,12 @@ const SubwayLiveMap = ({ stations = [], currentTrains, lineColor }) => {
 
     useEffect(() => {
         if (containerRef.current) {
-            setLineHeight(containerRef.current.scrollHeight);
+            // 실제 스크롤 높이와 예상 높이 비교 후, 더 큰 값으로 설정
+            const actualHeight = containerRef.current.scrollHeight;
+            const expectedHeight = stations.length * 32; // 예상 높이 (32px 기준)
+            setLineHeight(Math.max(actualHeight, expectedHeight));
         }
-    }, [stations]);
+    }, [stations]); // stations가 변경될 때마다 실행
 
     return (
         <StationListContainer ref={containerRef}>
