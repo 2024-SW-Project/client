@@ -256,7 +256,14 @@ const SubwayRoutePage = () => {
         setTravelTime(routeResponse.pathInfo.travel_time);
         setTransferCount(routeResponse.exChangeInfoSet.exChangeInfo.length);
 
-        fetchFavorites(userInfo, routeResponse.pathInfo.start_station_name, routeResponse.pathInfo.end_station_name, hasClimateCard);
+        if (userInfo.isLogIn) {
+            fetchFavorites(
+                userInfo,
+                routeResponse.pathInfo.start_station_name,
+                routeResponse.pathInfo.end_station_name,
+                hasClimateCard
+            );
+        }
     }, []);
 
     return (
@@ -268,10 +275,18 @@ const SubwayRoutePage = () => {
                     <TransferText>환승 {transferCount}회</TransferText>
                 </TimeContainer>
                 {/* 즐겨찾기, 캘린더 아이콘 */}
-                <IconsContainer>
-                    {isBookmark ? <BookmarkTIcon onClick={() => handleDeleteFavorite(favoriteId, setUserInfo)} /> : <BookmarkFIcon onClick={() => handlePostFavorite(userInfo, routeResponse, hasClimateCard, setUserInfo)} />}
-                    <CalendarIcon onClick={handleOpenCalendar} />
-                </IconsContainer>
+                {userInfo.isLogIn && (
+                    <IconsContainer>
+                        {isBookmark ? (
+                            <BookmarkTIcon onClick={() => handleDeleteFavorite(favoriteId, setUserInfo)} />
+                        ) : (
+                            <BookmarkFIcon
+                                onClick={() => handlePostFavorite(userInfo, routeResponse, hasClimateCard, setUserInfo)}
+                            />
+                        )}
+                        <CalendarIcon onClick={handleOpenCalendar} />
+                    </IconsContainer>
+                )}
             </TopContainer>
 
             {/* 캘린더 모달 */}
