@@ -197,14 +197,16 @@ const ProfileImage = styled.img`
     height: 80px;
     border-radius: 50%;
     margin-bottom: 1rem;
-    border: 2px solid #4d7eff;
+    border: 2px solid #c0c0c0;
 `;
 
 const ProfileImageContainer = styled.div`
     display: flex;
-    gap: 1rem;
     justify-content: center;
     margin-top: 1rem;
+    flex-direction: ${({ isEditing }) => (isEditing ? "row" : "column")};
+    align-items: center;
+    gap: ${({ isEditing }) => (isEditing ? "1rem" : "0")};
 `;
 
 const SelectableImage = styled.img`
@@ -320,15 +322,17 @@ const MyPage = () => {
             alert("중복체크를 완료해주세요.");
             return;
         }
+
         let fieldValue = userInfo[field];
         if (field === "profile_picture") {
-            fieldValue = Object.keys(profileImages).find(
+            // 현재 이미지 값을 숫자 키로 변환
+            fieldValue = parseInt(Object.keys(profileImages).find(
                 (key) => profileImages[key] === userInfo.profile_picture
-            ); // 숫자로 변환
+            ), 10); // 숫자 변환
         }
 
         try {
-            await axios.patch(
+            const res = await axios.patch(
                 `${import.meta.env.VITE_SERVER_URL}/mypage/profile`,
                 { [field]: fieldValue },
                 {
@@ -337,6 +341,18 @@ const MyPage = () => {
                     },
                 }
             );
+
+            // 응답 데이터를 기반으로 Recoil 상태 업데이트
+            const updatedData = res.data.data; // 응답 데이터에서 프로필 정보를 가져옴
+            setUserInfoRecoil((prev) => ({
+                ...prev,
+                isLogIn: true, // 로그인 상태 유지
+                nickname: updatedData.nickname,
+                profile_picture: updatedData.profile_picture,
+                user_id: prev.user_id, // user_id는 기존 상태 유지
+                is_climate_card_eligible: updatedData.isClimateCardEligible,
+            }));
+
             setEditingField(null);
         } catch (error) {
             console.error("Failed to update profile:", error);
@@ -437,7 +453,7 @@ const MyPage = () => {
                     <FieldLabel>프로필 사진</FieldLabel>
                     {editingField === "profile_picture" ? (
                         <>
-                            <ProfileImageContainer>
+                            <ProfileImageContainer isEditing>
                                 {[1, 2, 3].map((id) => (
                                     <SelectableImage
                                         key={id}
@@ -458,10 +474,14 @@ const MyPage = () => {
                         </>
                     ) : (
                         <>
-                            <ProfileImage src={userInfo.profile_picture} alt="Profile" />
-                            <EditButton onClick={() => handleEditClick("profile_picture")}>
-                                <FaPen />
-                            </EditButton>
+                            <ProfileImageContainer isEditing={editingField === "profile_picture"}>
+                                <ProfileImage src={userInfo.profile_picture} alt="Profile" />
+                                {editingField !== "profile_picture" && (
+                                    <EditButton onClick={() => handleEditClick("profile_picture")}>
+                                        <FaPen />
+                                    </EditButton>
+                                )}
+                            </ProfileImageContainer>
                         </>
                     )}
                 </FieldContainer>
