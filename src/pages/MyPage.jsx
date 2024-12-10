@@ -474,11 +474,6 @@ const MyPage = () => {
                         </>
                     ) : (
                         <>
-                            {/* <ProfileImage src={userInfo.profile_picture} alt="Profile" />
-                            <EditButton onClick={() => handleEditClick("profile_picture")}>
-                                <FaPen />
-                            </EditButton> */}
-
                             <ProfileImageContainer isEditing={editingField === "profile_picture"}>
                                 <ProfileImage src={userInfo.profile_picture} alt="Profile" />
                                 {editingField !== "profile_picture" && (
