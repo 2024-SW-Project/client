@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState, useSetRecoilState } from "recoil";
@@ -112,16 +112,13 @@ const LoginPage = () => {
             return;
         }
 
-        setWarning(""); // 조건이 충족되면 경고 메시지 제거
-
         try {
             const postData = {
                 username: id,
                 password: password,
             };
 
-            const response = await apiCall(
-                "post",
+            const response = await axios.post(
                 `${import.meta.env.VITE_SERVER_URL}/auth/login`,
                 postData
             );
@@ -140,17 +137,19 @@ const LoginPage = () => {
                         user_id: response.data.user_id,
                     });
                     alert("로그인 성공!");
+                    setWarning(""); // 로그인 성공 시 경고 메시지 초기화
                     navigate("/subway/search");
                 }
             }
         } catch (error) {
             if (error.response && error.response.status === 401) {
-                // API 응답의 오류 메시지 사용
-                setWarning(error.response.data.error_message || "아이디 또는 비밀번호가 올바르지 않습니다.");
+                setWarning(
+                    "아이디 또는 비밀번호가 올바르지 않습니다."
+                );
             } else {
                 setWarning("로그인에 실패했습니다. 다시 시도해주세요.");
             }
-            console.error("로그인 에러:", error);
+            console.log("로그인 실패");
         }
     };
 
@@ -173,8 +172,9 @@ const LoginPage = () => {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </InputContainer>
+                {/* 경고 메시지 */}
                 {warning && <WarningText>{warning}</WarningText>}
-                <SubmitButton onClick={() => handleLogin(setUserInfo)}>로그인</SubmitButton>
+                <SubmitButton onClick={handleLogin}>로그인</SubmitButton>
                 <LinkContainer>
                     <LinkText href="/auth/signup">회원가입</LinkText>
                     <span style={{ color: "#efefef" }}>|</span>
