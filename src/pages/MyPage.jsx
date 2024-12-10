@@ -316,27 +316,20 @@ const MyPage = () => {
     };
 
     const handleSave = async (field) => {
-        // 닉네임이나 이메일 값이 변경되지 않은 경우 수정 모드만 해제
-        if (field === "nickname" && userInfo[field] === userInfoRecoil.nickname) {
-            setEditingField(null);
-            return;
-        }
-        if (field === "email" && userInfo[field] === userInfoRecoil.email) {
-            setEditingField(null);
-            return;
-        }
-
-        // 입력값 유효성 검사
         if (!validateField(field, userInfo[field])) return;
 
-        // 변경된 경우에만 중복 체크 확인
-        if ((field === "nickname" && userInfo[field] !== userInfoRecoil.nickname && checkStatus.nickname !== "success") ||
-            (field === "email" && userInfo[field] !== userInfoRecoil.email && checkStatus.email !== "success")) {
+        if ((field === "nickname" && checkStatus.nickname !== "success") ||
+            (field === "email" && checkStatus.email !== "success")) {
             alert("중복체크를 완료해주세요.");
             return;
         }
 
         let fieldValue = userInfo[field];
+
+        if (field === "profile_picture") {
+            // userInfo에서 숫자로 변환된 profile_picture 값을 전송
+            fieldValue = userInfo.profile_picture;
+        }
 
         try {
             const res = await axios.patch(
@@ -349,16 +342,18 @@ const MyPage = () => {
                 }
             );
 
-            // 응답 데이터를 기반으로 Recoil 상태 업데이트
             const updatedData = res.data.data;
             setUserInfoRecoil((prev) => ({
                 ...prev,
-                isLogIn: true, // 로그인 상태 유지
+                isLogIn: true,
                 nickname: updatedData.nickname || prev.nickname,
                 email: updatedData.email || prev.email,
                 profile_picture: updatedData.profile_picture || prev.profile_picture,
-                user_id: prev.user_id, // user_id는 기존 상태 유지
-                is_climate_card_eligible: updatedData.isClimateCardEligible || prev.is_climate_card_eligible,
+            }));
+
+            setUserInfo((prev) => ({
+                ...prev,
+                profile_picture: profileImages[updatedData.profile_picture] || profile1,
             }));
 
             setEditingField(null); // 수정 모드 해제
@@ -366,8 +361,6 @@ const MyPage = () => {
             console.error("Failed to update profile:", error);
         }
     };
-
-
 
 
     const handleClimateCardSelection = (value) => {
@@ -378,8 +371,19 @@ const MyPage = () => {
     };
 
     const handleFieldChange = (field, value) => {
-        setUserInfo((prev) => ({ ...prev, [field]: value }));
-        setCheckStatus((prev) => ({ ...prev, [field]: "" }));
+        if (field === "profile_picture") {
+            // 클릭한 이미지의 key 값을 숫자로 변환하여 userInfo에 저장
+            const numericKey = Object.keys(profileImages).find(
+                (key) => profileImages[key] === value
+            );
+            setUserInfo((prev) => ({
+                ...prev,
+                [field]: numericKey ? parseInt(numericKey, 10) : 1, // 기본값 1
+            }));
+        } else {
+            setUserInfo((prev) => ({ ...prev, [field]: value }));
+        }
+        setCheckStatus((prev) => ({ ...prev, [field]: "" })); // 중복 체크 상태 초기화
     };
 
     const handleEditClick = (field) => {
