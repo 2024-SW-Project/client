@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { IoReloadOutline } from "react-icons/io5";
 import LineDropdown from "../components/SubwayLiveComp/LineDropdown";
 import SubwayLiveMap from "../components/SubwayLiveComp/SubwayLiveMap";
 import * as StationsList from "../utils/StationsList";
@@ -47,7 +48,6 @@ const Tab = styled.button`
     }
 `;
 
-
 const SubwayContainer = styled.div`
     width: 100%;
     flex-grow: 1;
@@ -89,13 +89,12 @@ const ReloadButton = styled.button`
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
-    background-color: #666271;
-    color: #fff;
+    background-color: #666271 !important;
+    color: white !important;
     border: none;
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    font-size: 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -106,18 +105,16 @@ const ReloadButton = styled.button`
     }
 `;
 
-const CountdownText = styled.span`
-    font-size: 0.9rem;
+const FaDownloadIcon = styled(IoReloadOutline)`
     color: white;
-    font-weight: bold;
+    font-size: 3rem;
 `;
 
 const SubwayLivePage = () => {
-    const [lineName, setLineName] = useState("1호선"); // Default line: 1호선
-    const [direction, setDirection] = useState(0); // Default direction: 상행
+    const [lineName, setLineName] = useState("1호선");
+    const [direction, setDirection] = useState(0);
     const [currentTrains, setCurrentTrains] = useState([]);
-    const [selectedMenu, setSelectedMenu] = useState(1); // Default menu value
-    const [countdown, setCountdown] = useState(15); // 15초 카운트다운
+    const [selectedMenu, setSelectedMenu] = useState(1);
 
     const lines = [
         { code: "1001", name: "1호선" },
@@ -166,7 +163,7 @@ const SubwayLivePage = () => {
             "GTX-A": "#7D589F",
         };
 
-        return lineColors[lineNumber] || '#333';
+        return lineColors[lineNumber] || "#333";
     };
 
     const fetchTrainPositions = async () => {
@@ -185,30 +182,12 @@ const SubwayLivePage = () => {
         }
     };
 
-    // 드롭다운 및 방향 변경 시 데이터 로드
     useEffect(() => {
         fetchTrainPositions();
     }, [lineName, direction, selectedMenu]);
 
-    // 15초 카운트다운 및 자동 갱신
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCountdown((prev) => {
-                if (prev === 1) {
-                    fetchTrainPositions();
-                    return 15;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    // 리로드 버튼 클릭 시
     const handleReload = () => {
         fetchTrainPositions();
-        setCountdown(15); // 카운트다운 리셋
     };
 
     const handleDirectionChange = (directionValue) => {
@@ -261,35 +240,18 @@ const SubwayLivePage = () => {
                 </Tab>
             </TabsContainer>
             <SubwayContainer>
-                {lines.map(({ code }) => (
-                    <React.Fragment key={code}>
-                        {lineCode === code && direction === 0 && (
-                            <SubwayLiveMap
-                                stations={
-                                    menuMapping[lineName]
-                                        ? StationsList[`Line${code}_up_${selectedMenu}`]
-                                        : StationsList[`Line${code}_up`]
-                                }
-                                currentTrains={currentTrains}
-                                lineColor={lineColor}
-                            />
-                        )}
-                        {lineCode === code && direction === 1 && (
-                            <SubwayLiveMap
-                                stations={
-                                    menuMapping[lineName]
-                                        ? StationsList[`Line${code}_down_${selectedMenu}`]
-                                        : StationsList[`Line${code}_down`]
-                                }
-                                currentTrains={currentTrains}
-                                lineColor={lineColor}
-                            />
-                        )}
-                    </React.Fragment>
-                ))}
+                <SubwayLiveMap
+                    stations={
+                        direction === 0
+                            ? StationsList[`Line${lineCode}_up_${selectedMenu}`] || []
+                            : StationsList[`Line${lineCode}_down_${selectedMenu}`] || []
+                    }
+                    currentTrains={currentTrains}
+                    lineColor={lineColor}
+                />
             </SubwayContainer>
             <ReloadButton onClick={handleReload}>
-                <CountdownText>{countdown}</CountdownText>
+                <FaDownloadIcon />
             </ReloadButton>
         </Container>
     );

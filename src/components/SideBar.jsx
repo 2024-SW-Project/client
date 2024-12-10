@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { sidebarState, startStationState, endStationState, userInfoState } from '../atoms/atom';
@@ -158,7 +158,7 @@ const SideBar = () => {
         // 페이지 이동
         navigate("/subway/search");
     };
-
+    
     return (
         <>
             {/* 오버레이: 사이드바 외부 클릭 시 닫기 */}

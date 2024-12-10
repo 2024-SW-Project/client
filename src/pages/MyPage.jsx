@@ -316,20 +316,27 @@ const MyPage = () => {
     };
 
     const handleSave = async (field) => {
+        // 닉네임이나 이메일 값이 변경되지 않은 경우 수정 모드만 해제
+        if (field === "nickname" && userInfo[field] === userInfoRecoil.nickname) {
+            setEditingField(null);
+            return;
+        }
+        if (field === "email" && userInfo[field] === userInfoRecoil.email) {
+            setEditingField(null);
+            return;
+        }
+
+        // 입력값 유효성 검사
         if (!validateField(field, userInfo[field])) return;
-        if ((field === "nickname" && checkStatus.nickname !== "success") ||
-            (field === "email" && checkStatus.email !== "success")) {
+
+        // 변경된 경우에만 중복 체크 확인
+        if ((field === "nickname" && userInfo[field] !== userInfoRecoil.nickname && checkStatus.nickname !== "success") ||
+            (field === "email" && userInfo[field] !== userInfoRecoil.email && checkStatus.email !== "success")) {
             alert("중복체크를 완료해주세요.");
             return;
         }
 
         let fieldValue = userInfo[field];
-        if (field === "profile_picture") {
-            // 현재 이미지 값을 숫자 키로 변환
-            fieldValue = parseInt(Object.keys(profileImages).find(
-                (key) => profileImages[key] === userInfo.profile_picture
-            ), 10); // 숫자 변환
-        }
 
         try {
             const res = await axios.patch(
@@ -343,21 +350,25 @@ const MyPage = () => {
             );
 
             // 응답 데이터를 기반으로 Recoil 상태 업데이트
-            const updatedData = res.data.data; // 응답 데이터에서 프로필 정보를 가져옴
+            const updatedData = res.data.data;
             setUserInfoRecoil((prev) => ({
                 ...prev,
                 isLogIn: true, // 로그인 상태 유지
-                nickname: updatedData.nickname,
-                profile_picture: updatedData.profile_picture,
+                nickname: updatedData.nickname || prev.nickname,
+                email: updatedData.email || prev.email,
+                profile_picture: updatedData.profile_picture || prev.profile_picture,
                 user_id: prev.user_id, // user_id는 기존 상태 유지
-                is_climate_card_eligible: updatedData.isClimateCardEligible,
+                is_climate_card_eligible: updatedData.isClimateCardEligible || prev.is_climate_card_eligible,
             }));
 
-            setEditingField(null);
+            setEditingField(null); // 수정 모드 해제
         } catch (error) {
             console.error("Failed to update profile:", error);
         }
     };
+
+
+
 
     const handleClimateCardSelection = (value) => {
         setUserInfo((prev) => ({
