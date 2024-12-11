@@ -346,7 +346,6 @@ const SignupPage = () => {
                 name: form.name,
                 nickname: form.nickname,
                 isClimateCardEligible: climateCard,
-                profile_picture: 1,
             };
 
             const response = await axios.post(
