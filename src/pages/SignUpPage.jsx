@@ -330,8 +330,7 @@ const SignupPage = () => {
         } catch (error) {
             setCheckStatus((prevStatus) => ({ ...prevStatus, email: "error" }));
             setWarnings((prevWarnings) => ({
-                ...prevWarnings,
-                email: "사용 불가능한 이메일입니다.",
+                ...prevWarnings, email: "" 
             }));
         }
     };
